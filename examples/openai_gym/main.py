@@ -1,1 +1,174 @@
+'''
+Example of MBEANN in Python for solving the OpenAI Gym problem.
 
+OpenAI Gym: https://gym.openai.com
+'''
+
+import numpy as np
+import multiprocessing
+import pickle
+import os
+import math
+import time
+import gym
+import random
+
+from mbeann.base import Individual, ToolboxMBEANN
+from mbeann.visualize import visualizeIndividual
+
+from examples.openai_gym.settings import SettingsMBEANN, SettingsEA
+
+
+# --- OpenAI Gym settings. --- #
+# Only supports environments with the following state and action spaces:
+# env.observation_space - Box(X,)
+# env.action_space      - Box(X,) or Discrete(X)
+envName = 'BipedalWalker-v3'
+
+# Make gym envirionment.
+env = gym.make(envName)
+
+
+def isDiscreteActions(env):
+    return 'Discrete' in str(type(env.action_space))
+
+
+def evaluateIndividual(ind):
+    total_reward = 0
+
+    # Number of evaluations per individual.
+    episode_per_ind = 1
+
+    # Episode length should be longer than the termination condition defined in the gym environment.
+    episode_length = 100000
+
+    for i_episode in range(episode_per_ind):
+
+        observation = env.reset()
+
+        for t in range(episode_length):
+
+            action = ind.calculateNetwork(observation)
+
+            if isDiscreteActions(env):
+                action = np.argmax(action)
+            else:
+                action = action * (env.action_space.high - env.action_space.low) + env.action_space.low
+
+            observation, reward, done, info = env.step(action)
+
+            total_reward += reward
+
+            if done:
+                break
+
+    fitness = total_reward / episode_per_ind
+    env.close()
+    return fitness,
+
+
+if __name__ == '__main__':
+
+    # Get input size from the gym envirionment.
+    if SettingsMBEANN.inSize is None:
+        SettingsMBEANN.inSize = env.observation_space.shape[0]
+
+    # Get output size from the gym envirionment.
+    if SettingsMBEANN.outSize is None:
+        if isDiscreteActions(env):
+            SettingsMBEANN.outSize = env.action_space.n
+        else:
+            SettingsMBEANN.outSize = env.action_space.shape[0]
+
+    # Number of worker processes to run evolution.
+    numProcesses = multiprocessing.cpu_count()
+
+    # Evolutionary algorithm settings.
+    popSize = SettingsEA.popSize
+    maxGeneration = SettingsEA.maxGeneration
+    isMaximizingFit = SettingsEA.isMaximizingFit
+    eliteSize = SettingsEA.eliteSize
+    tournamentSize = SettingsEA.tournamentSize
+    tournamentBestN = SettingsEA.tournamentBestN
+
+    randomSeed = 0 # int(time.time())
+    random.seed(randomSeed)
+    st = random.getstate()
+    env.seed(seed=randomSeed)
+
+    data_dir = os.path.join(os.path.dirname(__file__), 'results_openai_gym_{}'.format(st[1][0]))
+    os.makedirs(data_dir, exist_ok=True)
+
+    with open('{}/random_state.pkl'.format(data_dir), mode='wb') as out_pkl:
+        pickle.dump(st, out_pkl)
+
+    if numProcesses > 1:
+        pool = multiprocessing.Pool(processes=numProcesses)
+
+    pop = [Individual(SettingsMBEANN.inSize, SettingsMBEANN.outSize, SettingsMBEANN.hidSize,
+                      SettingsMBEANN.initialConnection,
+                      SettingsMBEANN.maxWeight, SettingsMBEANN.minWeight, SettingsMBEANN.initialWeightType,
+                      SettingsMBEANN.initialMean, SettingsMBEANN.initialGaussSTD,
+                      SettingsMBEANN.maxBias, SettingsMBEANN.minBias, SettingsMBEANN.initialBiasType,
+                      SettingsMBEANN.initialBiasMean, SettingsMBEANN.initialBiasGaussSTD,
+                      SettingsMBEANN.isReccurent, SettingsMBEANN.activationFunc,
+                      SettingsMBEANN.actFunc_Alpha, SettingsMBEANN.actFunc_Beta) for i in range(popSize)]
+    tools = ToolboxMBEANN(SettingsMBEANN.p_addNode, SettingsMBEANN.p_addLink,
+                          SettingsMBEANN.p_weight, SettingsMBEANN.p_bias,
+                          SettingsMBEANN.weightMutationGaussStd, SettingsMBEANN.biasMutationGaussStd,
+                          SettingsMBEANN.addNodeWeightValue)
+
+    log_stats = ['Gen', 'Mean', 'Std', 'Max', 'Min']
+    with open('{}/log_stats.pkl'.format(data_dir), mode='wb') as out_pkl:
+        pickle.dump(log_stats, out_pkl)
+
+    for gen in range(maxGeneration):
+        print("------")
+        print("Gen {}".format(gen))
+
+        if numProcesses > 1:
+            fitnessValues = pool.map(evaluateIndividual, pop)
+        else:
+            fitnessValues = []
+            for ind in pop:
+                fitnessValues += [evaluateIndividual(ind)]
+
+        for ind, fit in zip(pop, fitnessValues):
+            ind.fitness = fit[0]
+
+        log_stats = [gen, np.mean(fitnessValues), np.std(fitnessValues),
+                     np.max(fitnessValues), np.min(fitnessValues)]
+
+        with open('{}/log_stats.pkl'.format(data_dir), mode='ab') as out_pkl:
+            pickle.dump(log_stats, out_pkl)
+
+        print("Mean: " + str(np.mean(fitnessValues)) +
+              "\tStd: " + str(np.std(fitnessValues)) +
+              "\tMax: " + str(np.max(fitnessValues)) +
+              "\tMin: " + str(np.min(fitnessValues)))
+
+        # Save the best individual.
+        with open('{}/data_ind_gen{:0>4}.pkl'.format(data_dir, gen),
+                  mode='wb') as out_pkl:
+            pop.sort(key=lambda ind: ind.fitness, reverse=isMaximizingFit)
+            pickle.dump(pop[0], out_pkl)
+
+        visualizeIndividual(
+            pop[0], '{}/mbeann_ind_gen{:0>4}.pdf'.format(data_dir, gen))
+
+        tools.selectionSettings(pop, popSize, isMaximizingFit, eliteSize)
+
+        if eliteSize > 0:
+            elite = tools.preserveElite()
+
+        # pop = tools.selectionRandom()
+        pop = tools.selectionTournament(tournamentSize, tournamentBestN)
+
+        for i, ind in enumerate(pop):
+            tools.mutateAddNode(ind)
+            tools.mutateAddLink(ind)
+            tools.mutateWeightValue(ind)
+            tools.mutateBiasValue(ind)
+
+        if eliteSize > 0:
+            pop = elite + pop
