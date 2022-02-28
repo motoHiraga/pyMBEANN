@@ -45,4 +45,4 @@ python3 -m examples.openai_gym.animation
 
 #### Other tools
 - "vis_fit.py" is an example for visualizing the fitness transition throughout the evolutionary process (requires [pandas](https://pandas.pydata.org)).
-- "vis_ind.py" is an example for custom visualizing of an MBEANN individual.
+- "vis_ind.py" is an example for custom visualization of an MBEANN individual.
