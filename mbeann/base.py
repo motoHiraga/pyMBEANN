@@ -14,7 +14,7 @@ import copy
 
 
 class Node:
-    def __init__(self, id, type, bias = 0.0):
+    def __init__(self, id, type, bias = None):
         self.id = id
         self.type = type
         self.bias = bias
@@ -233,9 +233,9 @@ class Individual:
 
         for node, value in zip(hiddenNodeList, hiddenNodeValueSum):
             if self.activationFunc == 'sigmoid':
-                node.value = 1.0 / (1.0 + np.exp(self.addNodeBeta * (self.addNodeAlpha - (value + node.bias))))
+                node.value = 1.0 / (1.0 + np.exp(self.addNodeBeta * (node.bias - value)))
             elif self.activationFunc == 'tanh':
-                node.value = np.tanh(self.addNodeBeta * ((value + node.bias) - self.addNodeAlpha))
+                node.value = np.tanh(self.addNodeBeta * (value - node.bias))
             else:
                 print("ERROR: undefined activation function")
 
@@ -246,9 +246,9 @@ class Individual:
 
         for node, value in zip(outputNodeList, outputNodeValueSum):
             if self.activationFunc == 'sigmoid':
-                node.value = 1.0 / (1.0 + np.exp(self.addNodeBeta * (self.addNodeAlpha - (value + node.bias))))
+                node.value = 1.0 / (1.0 + np.exp(self.addNodeBeta * (node.bias - value)))
             elif self.activationFunc == 'tanh':
-                node.value = np.tanh(self.addNodeBeta * ((value + node.bias) - self.addNodeAlpha))
+                node.value = np.tanh(self.addNodeBeta * (value - node.bias))
             else:
                 print("ERROR: undefined activation function")
 
@@ -260,13 +260,13 @@ class Individual:
 
 class ToolboxMBEANN:
     def __init__(self, p_addNode, p_addLink, p_weight, p_bias,
-                 mutGaussSTD, mutBiasGaussStd, addNodeWeight):
+                 mutGaussSTD, mutBiasGaussSTD, addNodeWeight):
         self.p_addNode = p_addNode
         self.p_addLink = p_addLink
         self.p_weight = p_weight
         self.p_bias = p_bias
         self.mutGaussSTD = mutGaussSTD
-        self.mutBiasGaussStd = mutBiasGaussStd
+        self.mutBiasGaussSTD = mutBiasGaussSTD
         self.addNodeWeight = addNodeWeight
 
     def mutateWeightValue(self, ind):
@@ -279,8 +279,8 @@ class ToolboxMBEANN:
     def mutateBiasValue(self, ind):
         for operon in ind.operonList:
             for node in operon.nodeList:
-                if random.random() < self.p_bias:
-                    node.bias += random.gauss(0.0, self.mutBiasGaussStd)
+                if node.type != 'input' and random.random() < self.p_bias:
+                    node.bias += random.gauss(0.0, self.mutBiasGaussSTD)
                     node.bias = np.clip(node.bias, ind.minBias, ind.maxBias)
 
     def mutateAddNode(self, ind):
@@ -302,7 +302,9 @@ class ToolboxMBEANN:
                 operon.addLinkToDisabledLinkList(oldLink.fromNodeID, oldLink.toNodeID)
                 operon.linkList = np.delete(operon.linkList, randomIndex)
 
-                newNode = Node(id = ind.maxNodeID + 1, type = 'hidden')
+                newNode = Node(id = ind.maxNodeID + 1,
+                               type = 'hidden',
+                               bias = ind.addNodeAlpha)
                 newLinkA = Link(id = ind.maxLinkID + 1,
                                 fromNodeID = ind.maxNodeID + 1,
                                 toNodeID = oldLink.toNodeID,
