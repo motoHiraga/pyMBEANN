@@ -96,7 +96,7 @@ if __name__ == '__main__':
     st = random.getstate()
     env.seed(seed=randomSeed)
 
-    data_dir = os.path.join(os.path.dirname(__file__), 'results_openai_gym_{}'.format(st[1][0]))
+    data_dir = os.path.join(os.path.dirname(__file__), 'results_openai_gym_{}'.format(randomSeed))
     os.makedirs(data_dir, exist_ok=True)
 
     with open('{}/random_state.pkl'.format(data_dir), mode='wb') as out_pkl:

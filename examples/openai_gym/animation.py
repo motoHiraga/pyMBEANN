@@ -23,7 +23,7 @@ envName = 'BipedalWalker-v3'
 episode_length = 100000
 
 # Load MBEANN individual data
-path = os.path.join(os.path.dirname(__file__), 'results_openai_gym_2147483648')
+path = os.path.join(os.path.dirname(__file__), 'results_openai_gym_0')
 gen = '499'
 
 with open('{}/data_ind_gen{:0>4}.pkl'.format(path, gen), 'rb') as pkl:

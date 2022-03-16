@@ -20,7 +20,7 @@ min_x, max_x = -2.5, 2.5
 
 max_bal_steps=1000
 
-path = os.path.join(os.path.dirname(__file__), 'results_cart_2147483648')
+path = os.path.join(os.path.dirname(__file__), 'results_cart_0')
 # path = 'cart_0'
 gen = '299'
 
