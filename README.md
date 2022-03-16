@@ -14,6 +14,19 @@ For details, see the following research papers:
 - Requires [NumPy](https://numpy.org).
 - Requires [matplotlib](https://matplotlib.org) and [NetworkX](https://networkx.org) for visualizing MBEANN individuals.
 
+## Installation
+
+#### Installing the latest version using pip
+```
+pip install git+https://github.com/motoHiraga/pyMBEANN
+```
+
+#### Installing from source
+```
+git clone https://github.com/motoHiraga/pyMBEANN.git
+cd pyMBEANN
+python setup.py install
+```
 
 ## Examples
 #### XOR
