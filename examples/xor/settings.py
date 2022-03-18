@@ -2,6 +2,7 @@
 MBEANN settings for solving XOR.
 '''
 
+
 class SettingsEA:
 
     # --- Evolutionary algorithm settings. --- #
@@ -9,7 +10,7 @@ class SettingsEA:
     maxGeneration = 300  # 0 to (max_generation - 1)
     isMaximizingFit = False
     eliteSize = 0
-    tournamentSize = 5
+    tournamentSize = 3
     tournamentBestN = 1  # Select best N individuals from each tournament.
 
 
@@ -27,35 +28,46 @@ class SettingsMBEANN:
     # Between 0.0 to 1.0 for partial connections.
     initialConnection = 1.0
 
-    # initialWeightType: 'uniform' or 'gaussian'
+    # initialWeightType: 'uniform', 'gaussian', or 'cauchy'
     # uniform  - Uniform random numbers between minWeight to maxWeight.
-    # gaussian - Sampled from Gaussian distribution with initialMean and initialGaussSTD.
-    #            Weights out of the range [minWeight, maxWeight] are clipped.
+    # gaussian - Sampled from Gaussian distribution with the mean of initialWeighMean
+    #            and the standard deviation of initialWeightScale.
+    # cauchy   - Sampled from Cauchy distribution with the location parameter of initialWeighMean
+    #            and the scale parameter of initialWeightScale.
+    # Weights out of the range [minWeight, maxWeight] are clipped.
     initialWeightType = 'gaussian'
-    initialMean = 0.0
-    initialGaussSTD = 0.5
-    maxWeight = 5.0
-    minWeight = -5.0
+    initialWeighMean = 0.0
+    initialWeightScale = 0.5
+    maxWeight = 10.0
+    minWeight = -10.0
 
     # Bias settings.
     initialBiasType = 'gaussian'
     initialBiasMean = 0.0
-    initialBiasGaussSTD = 0.5
-    maxBias = 5.0
-    minBias = -5.0
-
+    initialBiasScale = 0.5
+    maxBias = 10.0
+    minBias = -10.0
 
     # --- Mutation settings. --- #
     # Probability of mutations.
-    p_addNode = 0.05
+    p_addNode = 0.03
     p_addLink = 0.3
     p_weight = 1.0
     p_bias = 1.0
 
-    # Parameter settings of mutations.
-    weightMutationGaussStd = 0.5
-    biasMutationGaussStd = 0.5
-
+    # Settings for wieght and bias mutations.
+    # MutationType: 'uniform', 'gaussian', or 'cauchy'
+    # uniform  - Replace the weight or bias value with the value sampled from
+    #            the uniform random distribution between minWeight to maxWeight.
+    # gaussian - Add the value sampled from Gaussian distribution with the mean of 0
+    #            and the standard deviation of MutationScale.
+    # cauchy   - Add the value sampled from Cauchy distribution with the location parameter of 0
+    #            and the scale parameter of MutationScale.
+    # Values out of the range are clipped.
+    weightMutationType = 'gaussian'
+    weightMutationScale = 0.5
+    biasMutationType = 'gaussian'
+    biasMutationScale = 0.05
 
     # --- Activation function settings. --- #
     activationFunc = 'sigmoid'  # 'sigmoid' or 'tanh'

@@ -3,12 +3,13 @@ Visualization tools for MBEANN in Python.
 pyMBEANN (Author: Motoaki Hiraga)
 '''
 
-import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+
 plt.switch_backend('agg')
-from matplotlib.colors import Normalize
 import networkx as nx
+from matplotlib.colors import Normalize
 
 
 def visualizeIndividual(ind, fileName):

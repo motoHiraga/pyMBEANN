@@ -17,6 +17,7 @@ https://github.com/PacktPublishing/Hands-on-Neuroevolution-with-Python/blob/mast
 #
 import math
 import random
+
 import matplotlib.pyplot as plt
 
 #
@@ -393,9 +394,9 @@ class CartAnimation:
         self.ax.set_xlim([self.min_x, self.max_x])
         self.ax.set_ylim([-0.06 * (self.max_x-self.min_x), (self.max_x-self.min_x) - 0.06 * (self.max_x-self.min_x)])
 
-        if frame >= self.max_bal_steps:
-            plt.clf()
-            plt.close()
+        # if frame >= self.max_bal_steps:
+        #     plt.clf()
+        #     plt.close()
 
 
 def reset_state(state):

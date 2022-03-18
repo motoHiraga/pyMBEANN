@@ -2,17 +2,18 @@
 Example of MBEANN in Python solving XOR.
 '''
 
-import numpy as np
 import multiprocessing
-import pickle
 import os
-import time
+import pickle
 import random
+import time
 
+import numpy as np
+
+from examples.xor.settings import SettingsEA, SettingsMBEANN
 from mbeann.base import Individual, ToolboxMBEANN
 from mbeann.visualize import visualizeIndividual
 
-from examples.xor.settings import SettingsMBEANN, SettingsEA
 
 def evaluateIndividual(ind):
 
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     tournamentSize = SettingsEA.tournamentSize
     tournamentBestN = SettingsEA.tournamentBestN
 
-    randomSeed = 0 # int(time.time())
+    randomSeed = 0  # int(time.time())
     random.seed(randomSeed)
     st = random.getstate()
 
@@ -64,20 +65,20 @@ if __name__ == '__main__':
     pop = [Individual(SettingsMBEANN.inSize, SettingsMBEANN.outSize, SettingsMBEANN.hidSize,
                       SettingsMBEANN.initialConnection,
                       SettingsMBEANN.maxWeight, SettingsMBEANN.minWeight, SettingsMBEANN.initialWeightType,
-                      SettingsMBEANN.initialMean, SettingsMBEANN.initialGaussSTD,
+                      SettingsMBEANN.initialWeighMean, SettingsMBEANN.initialWeightScale,
                       SettingsMBEANN.maxBias, SettingsMBEANN.minBias, SettingsMBEANN.initialBiasType,
-                      SettingsMBEANN.initialBiasMean, SettingsMBEANN.initialBiasGaussSTD,
+                      SettingsMBEANN.initialBiasMean, SettingsMBEANN.initialBiasScale,
                       SettingsMBEANN.isReccurent, SettingsMBEANN.activationFunc,
                       SettingsMBEANN.actFunc_Alpha, SettingsMBEANN.actFunc_Beta) for i in range(popSize)]
     tools = ToolboxMBEANN(SettingsMBEANN.p_addNode, SettingsMBEANN.p_addLink,
                           SettingsMBEANN.p_weight, SettingsMBEANN.p_bias,
-                          SettingsMBEANN.weightMutationGaussStd, SettingsMBEANN.biasMutationGaussStd,
+                          SettingsMBEANN.weightMutationType, SettingsMBEANN.weightMutationScale,
+                          SettingsMBEANN.biasMutationType, SettingsMBEANN.biasMutationScale,
                           SettingsMBEANN.addNodeWeightValue)
 
     log_stats = ['Gen', 'Mean', 'Std', 'Max', 'Min']
     with open('{}/log_stats.pkl'.format(data_dir), mode='wb') as out_pkl:
         pickle.dump(log_stats, out_pkl)
-
 
     for gen in range(maxGeneration):
         print("------")
@@ -122,10 +123,10 @@ if __name__ == '__main__':
         pop = tools.selectionTournament(tournamentSize, tournamentBestN)
 
         for i, ind in enumerate(pop):
-            tools.mutateAddNode(ind)
-            tools.mutateAddLink(ind)
             tools.mutateWeightValue(ind)
             tools.mutateBiasValue(ind)
+            tools.mutateAddNode(ind)
+            tools.mutateAddLink(ind)
 
         if eliteSize > 0:
             pop = elite + pop

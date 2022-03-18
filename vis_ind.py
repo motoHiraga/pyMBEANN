@@ -4,12 +4,12 @@ Example for visualizing an individual.
 
 import os
 import pickle
-import numpy as np
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
 import networkx as nx
-
+import numpy as np
+from matplotlib.colors import Normalize
 
 path = os.path.join(os.path.dirname(__file__), 'examples/xor/results_xor_2147483648')
 # path = os.path.join(os.path.dirname(__file__), 'examples/cart2pole/results_cart_0')

@@ -4,20 +4,19 @@ Example of MBEANN in Python for solving the OpenAI Gym problem.
 OpenAI Gym: https://gym.openai.com
 '''
 
-import numpy as np
-import multiprocessing
-import pickle
-import os
 import math
-import time
-import gym
+import multiprocessing
+import os
+import pickle
 import random
+import time
 
+import gym
+import numpy as np
+
+from examples.openai_gym.settings import SettingsEA, SettingsMBEANN
 from mbeann.base import Individual, ToolboxMBEANN
 from mbeann.visualize import visualizeIndividual
-
-from examples.openai_gym.settings import SettingsMBEANN, SettingsEA
-
 
 # --- OpenAI Gym settings. --- #
 # Only supports environments with the following state and action spaces:
@@ -91,10 +90,13 @@ if __name__ == '__main__':
     tournamentSize = SettingsEA.tournamentSize
     tournamentBestN = SettingsEA.tournamentBestN
 
-    randomSeed = 0 # int(time.time())
+    randomSeed = 0  # int(time.time())
     random.seed(randomSeed)
     st = random.getstate()
-    env.seed(seed=randomSeed)
+
+    # Changed 'env.seed(seed)' to 'env.reset(seed=seed)'.
+    # Might lose reproducibility at 'env.reset()' in 'evaluateIndividual'.
+    env.reset(seed=randomSeed)
 
     data_dir = os.path.join(os.path.dirname(__file__), 'results_openai_gym_{}'.format(randomSeed))
     os.makedirs(data_dir, exist_ok=True)
@@ -108,14 +110,15 @@ if __name__ == '__main__':
     pop = [Individual(SettingsMBEANN.inSize, SettingsMBEANN.outSize, SettingsMBEANN.hidSize,
                       SettingsMBEANN.initialConnection,
                       SettingsMBEANN.maxWeight, SettingsMBEANN.minWeight, SettingsMBEANN.initialWeightType,
-                      SettingsMBEANN.initialMean, SettingsMBEANN.initialGaussSTD,
+                      SettingsMBEANN.initialWeighMean, SettingsMBEANN.initialWeightScale,
                       SettingsMBEANN.maxBias, SettingsMBEANN.minBias, SettingsMBEANN.initialBiasType,
-                      SettingsMBEANN.initialBiasMean, SettingsMBEANN.initialBiasGaussSTD,
+                      SettingsMBEANN.initialBiasMean, SettingsMBEANN.initialBiasScale,
                       SettingsMBEANN.isReccurent, SettingsMBEANN.activationFunc,
                       SettingsMBEANN.actFunc_Alpha, SettingsMBEANN.actFunc_Beta) for i in range(popSize)]
     tools = ToolboxMBEANN(SettingsMBEANN.p_addNode, SettingsMBEANN.p_addLink,
                           SettingsMBEANN.p_weight, SettingsMBEANN.p_bias,
-                          SettingsMBEANN.weightMutationGaussStd, SettingsMBEANN.biasMutationGaussStd,
+                          SettingsMBEANN.weightMutationType, SettingsMBEANN.weightMutationScale,
+                          SettingsMBEANN.biasMutationType, SettingsMBEANN.biasMutationScale,
                           SettingsMBEANN.addNodeWeightValue)
 
     log_stats = ['Gen', 'Mean', 'Std', 'Max', 'Min']
@@ -161,14 +164,13 @@ if __name__ == '__main__':
         if eliteSize > 0:
             elite = tools.preserveElite()
 
-        # pop = tools.selectionRandom()
         pop = tools.selectionTournament(tournamentSize, tournamentBestN)
 
         for i, ind in enumerate(pop):
-            tools.mutateAddNode(ind)
-            tools.mutateAddLink(ind)
             tools.mutateWeightValue(ind)
             tools.mutateBiasValue(ind)
+            tools.mutateAddNode(ind)
+            tools.mutateAddLink(ind)
 
         if eliteSize > 0:
             pop = elite + pop

@@ -6,19 +6,19 @@ Details of MBEANN could be found in the following:
     ECAL 2007, pp. 936-945, 2007.
 '''
 
-import numpy as np
-import multiprocessing
-import pickle
-import os
 import math
-import time
+import multiprocessing
+import os
+import pickle
 import random
+import time
 
-from mbeann.base import Individual, ToolboxMBEANN
-from mbeann.visualize import visualizeIndividual
+import numpy as np
 
 import examples.cart2pole.cart_two_pole_base as cart
-from examples.cart2pole.settings import SettingsMBEANN, SettingsEA
+from examples.cart2pole.settings import SettingsEA, SettingsMBEANN
+from mbeann.base import Individual, ToolboxMBEANN
+from mbeann.visualize import visualizeIndividual
 
 
 def evaluateIndividual(ind):
@@ -109,14 +109,15 @@ if __name__ == '__main__':
     pop = [Individual(SettingsMBEANN.inSize, SettingsMBEANN.outSize, SettingsMBEANN.hidSize,
                       SettingsMBEANN.initialConnection,
                       SettingsMBEANN.maxWeight, SettingsMBEANN.minWeight, SettingsMBEANN.initialWeightType,
-                      SettingsMBEANN.initialMean, SettingsMBEANN.initialGaussSTD,
+                      SettingsMBEANN.initialWeighMean, SettingsMBEANN.initialWeightScale,
                       SettingsMBEANN.maxBias, SettingsMBEANN.minBias, SettingsMBEANN.initialBiasType,
-                      SettingsMBEANN.initialBiasMean, SettingsMBEANN.initialBiasGaussSTD,
+                      SettingsMBEANN.initialBiasMean, SettingsMBEANN.initialBiasScale,
                       SettingsMBEANN.isReccurent, SettingsMBEANN.activationFunc,
                       SettingsMBEANN.actFunc_Alpha, SettingsMBEANN.actFunc_Beta) for i in range(popSize)]
     tools = ToolboxMBEANN(SettingsMBEANN.p_addNode, SettingsMBEANN.p_addLink,
                           SettingsMBEANN.p_weight, SettingsMBEANN.p_bias,
-                          SettingsMBEANN.weightMutationGaussStd, SettingsMBEANN.biasMutationGaussStd,
+                          SettingsMBEANN.weightMutationType, SettingsMBEANN.weightMutationScale,
+                          SettingsMBEANN.biasMutationType, SettingsMBEANN.biasMutationScale,
                           SettingsMBEANN.addNodeWeightValue)
 
     log_stats = ['Gen', 'Mean', 'Std', 'Max', 'Min']
@@ -164,10 +165,10 @@ if __name__ == '__main__':
         pop = tools.selectionTournament(tournamentSize, tournamentBestN)
 
         for i, ind in enumerate(pop):
-            tools.mutateAddNode(ind)
-            tools.mutateAddLink(ind)
             tools.mutateWeightValue(ind)
             tools.mutateBiasValue(ind)
+            tools.mutateAddNode(ind)
+            tools.mutateAddLink(ind)
 
         if eliteSize > 0:
             pop = elite + pop

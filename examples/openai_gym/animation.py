@@ -2,9 +2,10 @@
 Animation for the OpenAI Gym problem.
 '''
 
-import os
 import math
+import os
 import pickle
+
 import gym
 import numpy as np
 

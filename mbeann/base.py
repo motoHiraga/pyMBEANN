@@ -7,14 +7,16 @@ Details of MBEANN could be found in the following:
     ECAL 2007, pp. 936-945, 2007.
 '''
 
-import numpy as np
-import random
-import itertools
 import copy
+import itertools
+import math
+import random
+
+import numpy as np
 
 
 class Node:
-    def __init__(self, id, type, bias = None):
+    def __init__(self, id, type, bias=None):
         self.id = id
         self.type = type
         self.bias = bias
@@ -44,8 +46,9 @@ class Operon:
         if isExists == True:
             # This warning might apperar when using "isReccurent = False".
             # mutateAddNode: Trying to delete a selected link again.
-            print("WARNING: {} to {} connection already exists in the disabledLinkList of operon {}"
-                  .format(fromNodeID, toNodeID, self.id))
+            # print("WARNING: {} to {} connection already exists in the disabledLinkList of operon {}"
+            #       .format(fromNodeID, toNodeID, self.id))
+            pass
         self.disabledLinkList += [(fromNodeID, toNodeID)]
 
     def deleteLinkFromDisabledLinkList(self, fromNodeID, toNodeID):
@@ -53,15 +56,15 @@ class Operon:
         if isExists == False:
             print("WARNING: Cannot find {} to {} connection in the disabledLinkList of operon {}"
                   .format(fromNodeID, toNodeID, self.id))
-        newDisabledLinkList = [i for i in self.disabledLinkList if i!=(fromNodeID, toNodeID)]
+        newDisabledLinkList = [i for i in self.disabledLinkList if i != (fromNodeID, toNodeID)]
         self.disabledLinkList = newDisabledLinkList
 
 
 class Individual:
     # TODO: planning to use "configparser" to make the settings clean and organized.
     def __init__(self, inputSize, outputSize, hiddenSize, initialConnection,
-                 maxWeight, minWeight, initialWeightType, initialMean, initialGaussSTD,
-                 maxBias, minBias, initialBiasType, initialBiasMean, initialBiasGaussSTD,
+                 maxWeight, minWeight, initialWeightType, initialWeightMean, initialWeightScale,
+                 maxBias, minBias, initialBiasType, initialBiasMean, initialBiasScale,
                  isReccurent, activationFunc, addNodeAlpha, addNodeBeta):
         self.fitness = 0.0
         self.inputSize = inputSize
@@ -71,13 +74,13 @@ class Individual:
         self.maxWeight = maxWeight
         self.minWeight = minWeight
         self.initialWeightType = initialWeightType
-        self.initialMean = initialMean
-        self.initialGaussSTD = initialGaussSTD
+        self.initialWeightMean = initialWeightMean
+        self.initialWeightScale = initialWeightScale
         self.maxBias = maxBias
         self.minBias = minBias
         self.initialBiasType = initialBiasType
         self.initialBiasMean = initialBiasMean
-        self.initialBiasGaussSTD = initialBiasGaussSTD
+        self.initialBiasScale = initialBiasScale
         self.isReccurent = isReccurent
         self.fitness = 0.0
 
@@ -86,20 +89,25 @@ class Individual:
         self.addNodeBeta = addNodeBeta
 
         if self.initialBiasType == 'gaussian':
-            initialBiases = [random.gauss(self.initialBiasMean, self.initialBiasGaussSTD)
+            initialBiases = [random.gauss(self.initialBiasMean, self.initialBiasScale)
                              for i in range(self.outputSize + self.hiddenSize)]
-            initialBiases = np.clip(initialBiases, self.minBias, self.maxBias)
+        elif self.initialBiasType == 'cauchy':
+            initialBiases = [self.initialBiasMean +
+                             self.initialBiasScale * math.tan(math.pi * (random.random() - 0.5))
+                             for i in range(self.outputSize + self.hiddenSize)]
         else:
-            initialBiases = [random.uniform(self.minBias, self.maxBias)
-                             for i in range(self.outputSize + self.hiddenSize)]
             if self.initialBiasType != 'uniform':
                 print("WARNING: undefined 'initialBiasType' using 'uniform' instead")
+            initialBiases = [random.uniform(self.minBias, self.maxBias)
+                             for i in range(self.outputSize + self.hiddenSize)]
+        initialBiases = np.clip(initialBiases, self.minBias, self.maxBias)
 
-        inputNodeList = [Node(id = i, type = 'input') for i in range(self.inputSize)]
-        outputNodeList = [Node(id = i + self.inputSize, type = 'output', bias = initialBiases[i])
+        inputNodeList = [Node(id=i, type='input')
+                         for i in range(self.inputSize)]
+        outputNodeList = [Node(id=i + self.inputSize, type='output', bias=initialBiases[i])
                           for i in range(self.outputSize)]
-        hiddenNodeList = [Node(id = i + self.inputSize + self.outputSize,
-                          type = 'hidden', bias = initialBiases[i + self.outputSize])
+        hiddenNodeList = [Node(id=i + self.inputSize + self.outputSize,
+                          type='hidden', bias=initialBiases[i + self.outputSize])
                           for i in range(self.hiddenSize)]
 
         self.maxNodeID = self.inputSize + self.outputSize + self.hiddenSize - 1
@@ -120,14 +128,18 @@ class Individual:
             connections[i] = 1
 
         if self.initialWeightType == 'gaussian':
-            initialWeights = [random.gauss(self.initialMean, self.initialGaussSTD)
+            initialWeights = [random.gauss(self.initialWeightMean, self.initialWeightScale)
                               for i in range(connectionNumber)]
-            initialWeights = np.clip(initialWeights, self.minWeight, self.maxWeight)
+        elif self.initialWeightType == 'cauchy':
+            initialWeights = [self.initialWeightMean +
+                              self.initialWeightScale * math.tan(math.pi * (random.random() - 0.5))
+                              for i in range(connectionNumber)]
         else:
+            if self.initialWeightType != 'uniform':
+                print("WARNING: undefined 'initialWeightType', using 'uniform' instead")
             initialWeights = [random.uniform(self.minWeight, self.maxWeight)
                               for i in range(connectionNumber)]
-            if self.initialWeightType != 'uniform':
-                print("WARNING: undefined 'initialWeightType' using 'uniform' instead")
+        initialWeights = np.clip(initialWeights, self.minWeight, self.maxWeight)
 
         # Conduct the initial topology.
         linkID = 0
@@ -136,10 +148,10 @@ class Individual:
 
         for i, (input, output) in enumerate(itertools.product(inputNodeList, outputNodeList)):
             if connections[i] == 1:
-                linkList += [Link(id = linkID,
-                             fromNodeID = input.id,
-                             toNodeID = output.id,
-                             weight = initialWeights[linkID])]
+                linkList += [Link(id=linkID,
+                                  fromNodeID=input.id,
+                                  toNodeID=output.id,
+                                  weight=initialWeights[linkID])]
                 linkID += 1
             else:
                 disabledLinkList += [(input.id, output.id)]
@@ -149,9 +161,9 @@ class Individual:
             for output in outputNodeList:
                 disabledLinkList += [(output.id, output.id)]
 
-        self.operonList = [Operon(id = 0,
-                           nodeList = np.concatenate([inputNodeList, outputNodeList]),
-                           linkList = np.array(linkList))]
+        self.operonList = [Operon(id=0,
+                                  nodeList=np.concatenate([inputNodeList, outputNodeList]),
+                                  linkList=np.array(linkList))]
         self.operonList[0].setDisabledLinkList(disabledLinkList)
         maxOperonID = 0
 
@@ -169,11 +181,12 @@ class Individual:
                 linkList = []
                 disabledLinkList = []
                 for j, input in enumerate(inputNodeList):
-                    if connections[i * (self.inputSize + self.outputSize) + j + self.inputSize * self.outputSize] == 1:
-                        linkList += [Link(id = linkID,
-                                          fromNodeID = input.id,
-                                          toNodeID = hidden.id,
-                                          weight = initialWeights[linkID])]
+                    if connections[i * (self.inputSize + self.outputSize) + j +
+                                   self.inputSize * self.outputSize] == 1:
+                        linkList += [Link(id=linkID,
+                                          fromNodeID=input.id,
+                                          toNodeID=hidden.id,
+                                          weight=initialWeights[linkID])]
                         linkID += 1
                     else:
                         disabledLinkList += [(input.id, hidden.id)]
@@ -181,10 +194,10 @@ class Individual:
                 for j, output in enumerate(outputNodeList):
                     if connections[i * (self.inputSize + self.outputSize) + j +
                                    self.inputSize * self.outputSize + self.inputSize] == 1:
-                        linkList += [Link(id = linkID,
-                                          fromNodeID = hidden.id,
-                                          toNodeID = output.id,
-                                          weight = initialWeights[linkID])]
+                        linkList += [Link(id=linkID,
+                                          fromNodeID=hidden.id,
+                                          toNodeID=output.id,
+                                          weight=initialWeights[linkID])]
                         linkID += 1
                     else:
                         disabledLinkList += [(hidden.id, output.id)]
@@ -193,9 +206,9 @@ class Individual:
                 if self.isReccurent == True:
                     disabledLinkList += [(hidden.id, hidden.id)]
 
-                self.operonList += [Operon(id = maxOperonID,
-                                           nodeList = np.array([hidden]),
-                                           linkList = np.array(linkList))]
+                self.operonList += [Operon(id=maxOperonID,
+                                           nodeList=np.array([hidden]),
+                                           linkList=np.array(linkList))]
                 self.operonList[maxOperonID].setDisabledLinkList(disabledLinkList)
 
         self.maxOperonID = maxOperonID
@@ -204,16 +217,16 @@ class Individual:
     def calculateNetwork(self, inputsList):
 
         if len(inputsList) != self.inputSize:
-            print("WARNING: the number of inputs doesn't match")
+            raise ValueError("The number of inputs doesn't match")
 
         nodeList, linkList = [], []
         for operon in self.operonList:
             nodeList = np.concatenate([nodeList, operon.nodeList])
             linkList = np.concatenate([linkList, operon.linkList])
 
-        inputNodeList = [node for node in nodeList if node.type=='input']
-        hiddenNodeList = [node for node in nodeList if node.type=='hidden']
-        outputNodeList = [node for node in nodeList if node.type=='output']
+        inputNodeList = [node for node in nodeList if node.type == 'input']
+        hiddenNodeList = [node for node in nodeList if node.type == 'hidden']
+        outputNodeList = [node for node in nodeList if node.type == 'output']
 
         # Sorting by ID just in case.
         inputNodeList.sort(key=lambda node: node.id)
@@ -229,7 +242,7 @@ class Individual:
 
         nodeValueVec = [node.value for node in sorted(nodeList, key=lambda node: node.id)]
 
-        hiddenNodeValueSum = np.matmul(weightMatrix[[i.id for i in hiddenNodeList],:], nodeValueVec)
+        hiddenNodeValueSum = np.matmul(weightMatrix[[i.id for i in hiddenNodeList], :], nodeValueVec)
 
         for node, value in zip(hiddenNodeList, hiddenNodeValueSum):
             if self.activationFunc == 'sigmoid':
@@ -237,12 +250,12 @@ class Individual:
             elif self.activationFunc == 'tanh':
                 node.value = np.tanh(self.addNodeBeta * (value - node.bias))
             else:
-                print("ERROR: undefined activation function")
+                raise NameError("Activation function '{}' is not defined".format(self.activationFunc))
 
         # Update nodeValueVec.
         nodeValueVec = [node.value for node in sorted(nodeList, key=lambda node: node.id)]
 
-        outputNodeValueSum = np.matmul(weightMatrix[[i.id for i in outputNodeList],:], nodeValueVec)
+        outputNodeValueSum = np.matmul(weightMatrix[[i.id for i in outputNodeList], :], nodeValueVec)
 
         for node, value in zip(outputNodeList, outputNodeValueSum):
             if self.activationFunc == 'sigmoid':
@@ -250,7 +263,7 @@ class Individual:
             elif self.activationFunc == 'tanh':
                 node.value = np.tanh(self.addNodeBeta * (value - node.bias))
             else:
-                print("ERROR: undefined activation function")
+                raise NameError("Activation function '{}' is not defined".format(self.activationFunc))
 
         # Update nodeValueVec.
         outputValueVec = [node.value for node in sorted(outputNodeList, key=lambda node: node.id)]
@@ -260,27 +273,48 @@ class Individual:
 
 class ToolboxMBEANN:
     def __init__(self, p_addNode, p_addLink, p_weight, p_bias,
-                 mutGaussSTD, mutBiasGaussSTD, addNodeWeight):
+                 mutWeightType, mutWeightScale,
+                 mutBiasType, mutBiasScale, addNodeWeight):
         self.p_addNode = p_addNode
         self.p_addLink = p_addLink
         self.p_weight = p_weight
         self.p_bias = p_bias
-        self.mutGaussSTD = mutGaussSTD
-        self.mutBiasGaussSTD = mutBiasGaussSTD
+        self.mutWeightType = mutWeightType
+        self.mutWeightScale = mutWeightScale
+        self.mutBiasType = mutBiasType
+        self.mutBiasScale = mutBiasScale
         self.addNodeWeight = addNodeWeight
+
+        if mutWeightType not in ['gaussian', 'cauchy', 'uniform']:
+            print("WARNING: undefined 'mutWeightType', using 'gaussian' instead")
+            self.mutWeightType = 'gaussian'
+
+        if mutBiasType not in ['gaussian', 'cauchy', 'uniform']:
+            print("WARNING: undefined 'mutBiasType', using 'gaussian' instead")
+            self.mutBiasType = 'gaussian'
 
     def mutateWeightValue(self, ind):
         for operon in ind.operonList:
             for link in operon.linkList:
                 if random.random() < self.p_weight:
-                    link.weight += random.gauss(0.0, self.mutGaussSTD)
+                    if self.mutWeightType == 'gaussian':
+                        link.weight += random.gauss(0.0, self.mutWeightScale)
+                    elif self.mutWeightType == 'cauchy':
+                        link.weight += self.mutWeightScale * math.tan(math.pi * (random.random() - 0.5))
+                    elif self.mutWeightType == 'uniform':
+                        link.weight = random.uniform(ind.minWeight, ind.maxWeight)
                     link.weight = np.clip(link.weight, ind.minWeight, ind.maxWeight)
 
     def mutateBiasValue(self, ind):
         for operon in ind.operonList:
             for node in operon.nodeList:
                 if node.type != 'input' and random.random() < self.p_bias:
-                    node.bias += random.gauss(0.0, self.mutBiasGaussSTD)
+                    if self.mutBiasType == 'gaussian':
+                        node.bias += random.gauss(0.0, self.mutBiasScale)
+                    elif self.mutBiasType == 'cauchy':
+                        node.bias += self.mutBiasScale * math.tan(math.pi * (random.random() - 0.5))
+                    elif self.mutBiasType == 'uniform':
+                        node.bias = random.uniform(ind.minBias, ind.maxBias)
                     node.bias = np.clip(node.bias, ind.minBias, ind.maxBias)
 
     def mutateAddNode(self, ind):
@@ -302,17 +336,17 @@ class ToolboxMBEANN:
                 operon.addLinkToDisabledLinkList(oldLink.fromNodeID, oldLink.toNodeID)
                 operon.linkList = np.delete(operon.linkList, randomIndex)
 
-                newNode = Node(id = ind.maxNodeID + 1,
-                               type = 'hidden',
-                               bias = ind.addNodeAlpha)
-                newLinkA = Link(id = ind.maxLinkID + 1,
-                                fromNodeID = ind.maxNodeID + 1,
-                                toNodeID = oldLink.toNodeID,
-                                weight = oldLink.weight)
-                newLinkB = Link(id = ind.maxLinkID + 2,
-                                fromNodeID = oldLink.fromNodeID,
-                                toNodeID = ind.maxNodeID + 1,
-                                weight = self.addNodeWeight)
+                newNode = Node(id=ind.maxNodeID + 1,
+                               type='hidden',
+                               bias=ind.addNodeAlpha)
+                newLinkA = Link(id=ind.maxLinkID + 1,
+                                fromNodeID=ind.maxNodeID + 1,
+                                toNodeID=oldLink.toNodeID,
+                                weight=oldLink.weight)
+                newLinkB = Link(id=ind.maxLinkID + 2,
+                                fromNodeID=oldLink.fromNodeID,
+                                toNodeID=ind.maxNodeID + 1,
+                                weight=self.addNodeWeight)
 
                 ind.maxNodeID += 1
                 ind.maxLinkID += 2
@@ -320,9 +354,9 @@ class ToolboxMBEANN:
                 if operon.id == 0:
                     newOperonID = ind.maxOperonID + 1
                     ind.maxOperonID += 1
-                    ind.operonList += [Operon(id = newOperonID,
-                                              nodeList = np.array([newNode]),
-                                              linkList = np.array([newLinkA, newLinkB]))]
+                    ind.operonList += [Operon(id=newOperonID,
+                                              nodeList=np.array([newNode]),
+                                              linkList=np.array([newLinkA, newLinkB]))]
 
                     disabledLinkList = []
                     if ind.isReccurent == True:
@@ -374,10 +408,10 @@ class ToolboxMBEANN:
                     randomIndex = random.randint(0, len(operon.disabledLinkList) - 1)
                     newLinkFromNodeID = operon.disabledLinkList[randomIndex][0]
                     newLinkToNodeID = operon.disabledLinkList[randomIndex][1]
-                    newLink = Link(id = ind.maxLinkID + 1,
-                                   fromNodeID = newLinkFromNodeID,
-                                   toNodeID = newLinkToNodeID,
-                                   weight = 0.0)
+                    newLink = Link(id=ind.maxLinkID + 1,
+                                   fromNodeID=newLinkFromNodeID,
+                                   toNodeID=newLinkToNodeID,
+                                   weight=0.0)
                     ind.maxLinkID += 1
                     operon.deleteLinkFromDisabledLinkList(newLinkFromNodeID, newLinkToNodeID)
                     operon.linkList = np.append(operon.linkList, [newLink])
@@ -393,15 +427,17 @@ class ToolboxMBEANN:
         return self.pop[0:self.eliteSize]
 
     def selectionRandom(self):
-        newPop = random.choices(self.pop, k = self.popSize - self.eliteSize)
+        newPop = random.choices(self.pop, k=self.popSize - self.eliteSize)
         newPop.sort(key=lambda ind: ind.fitness, reverse=self.isMaximizingFit)
         newPop = [copy.deepcopy(ind) for ind in newPop]
         return newPop
 
     def selectionTournament(self, tournamentSize, bestN=1):
         # Select "bestN" indivisuals from each tournament.
+        if self.popSize < tournamentSize:
+            raise ValueError("Tournament size larger than population size")
         if tournamentSize < bestN:
-            print("ERROR: inappropriate settings in the tournament selection")
+            raise ValueError("Samle larger than tournament size")
         newPop = []
         while len(newPop) < self.popSize - self.eliteSize:
             tournament = random.sample(self.pop, tournamentSize)
