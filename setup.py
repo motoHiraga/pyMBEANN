@@ -8,7 +8,7 @@ setup(
     url='https://github.com/motoHiraga/pyMBEANN',
     license='MIT',
     description='An implementation of Mutation-Based Evolving Artificial Neural Network (MBEANN)',
-    py_modules=['mbeann'],
+    packages=['mbeann'],
     install_requires=['numpy', 'networkx', 'matplotlib',],
     extras_require={'examples': ['pandas']}
 )
