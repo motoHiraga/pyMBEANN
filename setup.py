@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='mbeann',
-    version='0.1',
+    version='0.1.0',
     author='Motoaki Hiraga',
     author_email='100577843+motoHiraga@users.noreply.github.com',
     url='https://github.com/motoHiraga/pyMBEANN',
