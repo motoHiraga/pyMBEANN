@@ -6,7 +6,7 @@ MBEANN is an alternative algorithm for *Topology and Weight Evolving Artificial 
 For details, see the following research papers:  
 
 - K. Ohkura, et al., "MBEANN: Mutation-Based Evolving Artificial Neural Networks," ECAL 2007, pp. 936-945, 2007.
-- M. Hiraga and K. Ohkura, "Topology and Weight Evolving Artificial Neural Networks in Cooperative Transport by a Robotic Swarm," Artificial Life and Robotics, 2022. <br/>
+- M. Hiraga and K. Ohkura, "Topology and Weight Evolving Artificial Neural Networks in Cooperative Transport by a Robotic Swarm," Artificial Life and Robotics, Vol. 27, No.2, pp. 324-332, 2022. <br/>
   DOI: [10.1007/s10015-021-00716-9](https://doi.org/10.1007/s10015-021-00716-9)
 
 ## Requirements
