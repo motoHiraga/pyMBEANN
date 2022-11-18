@@ -11,7 +11,7 @@ import pickle
 import random
 import time
 
-import gym
+import gymnasium as gym
 import numpy as np
 
 from examples.openai_gym.settings import SettingsEA, SettingsMBEANN
@@ -43,7 +43,7 @@ def evaluateIndividual(ind):
 
     for i_episode in range(episode_per_ind):
 
-        observation = env.reset()
+        observation, info = env.reset()
 
         for t in range(episode_length):
 
@@ -54,11 +54,11 @@ def evaluateIndividual(ind):
             else:
                 action = action * (env.action_space.high - env.action_space.low) + env.action_space.low
 
-            observation, reward, done, info = env.step(action)
+            observation, reward, terminated, truncated, info = env.step(action)
 
             total_reward += reward
 
-            if done:
+            if terminated or truncated:
                 break
 
     fitness = total_reward / episode_per_ind
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     # Might lose reproducibility at 'env.reset()' in 'evaluateIndividual'.
     env.reset(seed=randomSeed)
 
-    data_dir = os.path.join(os.path.dirname(__file__), 'results_openai_gym_{}'.format(randomSeed))
+    data_dir = os.path.join(os.path.dirname(__file__), 'results_gym_{}'.format(randomSeed))
     os.makedirs(data_dir, exist_ok=True)
 
     with open('{}/random_state.pkl'.format(data_dir), mode='wb') as out_pkl:

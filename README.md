@@ -3,10 +3,10 @@ An implementation of Mutation-Based Evolving Artificial Neural Network (MBEANN) 
 
 ## Background
 MBEANN is an alternative algorithm for *Topology and Weight Evolving Artificial Neural Networks (TWEANNs)*, which evolves both the values of the synaptic weights and the topological structure of neural networks.
-For details, see the following research papers:  
+For details, see the following research papers:
 
 - K. Ohkura, et al., "MBEANN: Mutation-Based Evolving Artificial Neural Networks," ECAL 2007, pp. 936-945, 2007.
-- M. Hiraga and K. Ohkura, "Topology and Weight Evolving Artificial Neural Networks in Cooperative Transport by a Robotic Swarm," Artificial Life and Robotics, Vol. 27, No.2, pp. 324-332, 2022. <br/>
+- M. Hiraga and K. Ohkura, "Topology and Weight Evolving Artificial Neural Networks in Cooperative Transport by a Robotic Swarm," Artificial Life and Robotics, Vol. 27, No.2, pp. 324-332, 2022. `<br/>`
   DOI: [10.1007/s10015-021-00716-9](https://doi.org/10.1007/s10015-021-00716-9)
 
 ## Requirements
@@ -15,7 +15,6 @@ For details, see the following research papers:
 - Requires [matplotlib](https://matplotlib.org) and [NetworkX](https://networkx.org) for visualizing MBEANN individuals.
 
 ## Installation
-
 #### Installing the latest version using pip
 ```
 pip install git+https://github.com/motoHiraga/pyMBEANN
@@ -45,8 +44,8 @@ python3 -m examples.cart2pole.main
 python3 -m examples.cart2pole.animation
 ```
 
-#### OpenAI Gym
-- Install [OpenAI Gym](https://gym.openai.com).
+#### Gym Environment
+- Install [Gymnasium](https://github.com/Farama-Foundation/Gymnasium).
 - Run evolution with the following:
 ```
 python3 -m examples.openai_gym.main

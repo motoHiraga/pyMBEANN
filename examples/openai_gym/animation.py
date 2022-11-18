@@ -6,7 +6,7 @@ import math
 import os
 import pickle
 
-import gym
+import gymnasium as gym
 import numpy as np
 
 
@@ -24,17 +24,17 @@ envName = 'BipedalWalker-v3'
 episode_length = 100000
 
 # Load MBEANN individual data
-path = os.path.join(os.path.dirname(__file__), 'results_openai_gym_0')
+path = os.path.join(os.path.dirname(__file__), 'results_gym_0')
 gen = '499'
 
 with open('{}/data_ind_gen{:0>4}.pkl'.format(path, gen), 'rb') as pkl:
     ind = pickle.load(pkl)
 
 # Make gym envirionment.
-env = gym.make(envName)
+env = gym.make(envName, render_mode='human')
 
 total_reward = 0
-observation = env.reset()
+observation, info = env.reset(seed=0)
 
 for t in range(episode_length):
 
@@ -47,11 +47,11 @@ for t in range(episode_length):
     else:
         action = action * (env.action_space.high - env.action_space.low) + env.action_space.low
 
-    observation, reward, done, info = env.step(action)
+    observation, reward, terminated, truncated, info = env.step(action)
 
     total_reward += reward
 
-    if done:
+    if terminated or truncated:
         print("Episode finished after {} timesteps with getting reward {}".format(t + 1, total_reward))
         break
 
