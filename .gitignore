@@ -131,4 +131,5 @@ dmypy.json
 .DS_Store
 examples/cart2pole/results*/
 examples/openai_gym/results*/
+examples/gym/results*/
 examples/xor/results*/
