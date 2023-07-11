@@ -14,7 +14,7 @@ import time
 import gymnasium as gym
 import numpy as np
 
-from examples.openai_gym.settings import SettingsEA, SettingsMBEANN
+from examples.gym.settings import SettingsEA, SettingsMBEANN
 from mbeann.base import Individual, ToolboxMBEANN
 from mbeann.visualize import visualizeIndividual
 

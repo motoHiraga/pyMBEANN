@@ -433,11 +433,11 @@ class ToolboxMBEANN:
         return newPop
 
     def selectionTournament(self, tournamentSize, bestN=1):
-        # Select "bestN" indivisuals from each tournament.
+        # Select "bestN" individuals from each tournament.
         if self.popSize < tournamentSize:
             raise ValueError("Tournament size larger than population size")
         if tournamentSize < bestN:
-            raise ValueError("Samle larger than tournament size")
+            raise ValueError("'bestN' should be smaller than tournament size")
         newPop = []
         while len(newPop) < self.popSize - self.eliteSize:
             tournament = random.sample(self.pop, tournamentSize)
