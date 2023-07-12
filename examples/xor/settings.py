@@ -10,7 +10,7 @@ class SettingsEA:
     maxGeneration = 300  # 0 to (max_generation - 1)
     isMaximizingFit = False
     eliteSize = 0
-    tournamentSize = 3
+    tournamentSize = 20
     tournamentBestN = 1  # Select best N individuals from each tournament.
 
 
@@ -30,8 +30,8 @@ class SettingsMBEANN:
 
     # initialWeightType: 'uniform', 'gaussian', or 'cauchy'
     # uniform  - Uniform random numbers between minWeight to maxWeight.
-    # gaussian - Sampled from Gaussian distribution with the mean of initialWeighMean
-    #            and the standard deviation of initialWeightScale.
+    # gaussian - Sampled from Gaussian distribution with 
+    #            random.normalvariate(mu=initialWeighMean, sigma=initialWeightScale). 
     # cauchy   - Sampled from Cauchy distribution with the location parameter of initialWeighMean
     #            and the scale parameter of initialWeightScale.
     # Weights out of the range [minWeight, maxWeight] are clipped.
@@ -44,9 +44,14 @@ class SettingsMBEANN:
     # Bias settings.
     initialBiasType = 'gaussian'
     initialBiasMean = 0.0
-    initialBiasScale = 0.5
+    initialBiasScale = 0.05
     maxBias = 10.0
     minBias = -10.0
+
+    # Strategy settings for "sa_one."
+    initialStrategy = 0.5
+    maxStrategy = 5.0
+    minStrategy = 0.01
 
     # --- Mutation settings. --- #
     # Probability of mutations.
@@ -59,14 +64,18 @@ class SettingsMBEANN:
     # MutationType: 'uniform', 'gaussian', or 'cauchy'
     # uniform  - Replace the weight or bias value with the value sampled from
     #            the uniform random distribution between minWeight to maxWeight.
-    # gaussian - Add the value sampled from Gaussian distribution with the mean of 0
-    #            and the standard deviation of MutationScale.
+    # gaussian - Add the value sampled from Gaussian distribution with 
+    #            random.normalvariate(mu=o, sigma=MutationScale). 
     # cauchy   - Add the value sampled from Cauchy distribution with the location parameter of 0
     #            and the scale parameter of MutationScale.
+    # sa_one   - Self-adaptive mutation using uncorrelated mutation with one step size.
+    #            See [A.E. Eiben and J.E. Smith, 2015].
+    #            Both weight and bias should be set to "sa_one."
+    #            "MutationScale" is not used in this mutation. 
     # Values out of the range are clipped.
-    weightMutationType = 'gaussian'
+    weightMutationType = 'sa_one'
     weightMutationScale = 0.5
-    biasMutationType = 'gaussian'
+    biasMutationType = 'sa_one'
     biasMutationScale = 0.05
 
     # --- Activation function settings. --- #
@@ -74,9 +83,9 @@ class SettingsMBEANN:
     addNodeWeightValue = 1.0
 
     # Recommended settings for 'sigmoid':
-    actFunc_Alpha = 0.5 * addNodeWeightValue
-    actFunc_Beta = 4.629740 / addNodeWeightValue
+    actFuncBias = 0.5 * addNodeWeightValue
+    actFuncGain = 4.629740 / addNodeWeightValue
 
     # Recommended settings for 'tanh':
-    # actFunc_Alpha = 0.0
-    # actFunc_Beta = 1.157435 / addNodeWeightValue
+    # actFuncBias = 0.0
+    # actFuncGain = 1.157435 / addNodeWeightValue

@@ -65,7 +65,8 @@ class Individual:
     def __init__(self, inputSize, outputSize, hiddenSize, initialConnection,
                  maxWeight, minWeight, initialWeightType, initialWeightMean, initialWeightScale,
                  maxBias, minBias, initialBiasType, initialBiasMean, initialBiasScale,
-                 isReccurent, activationFunc, addNodeAlpha, addNodeBeta):
+                 maxStrategy, minStrategy, initialStrategy,
+                 isReccurent, activationFunc, addNodeBias, addNodeGain):
         self.fitness = 0.0
         self.inputSize = inputSize
         self.outputSize = outputSize
@@ -81,15 +82,21 @@ class Individual:
         self.initialBiasType = initialBiasType
         self.initialBiasMean = initialBiasMean
         self.initialBiasScale = initialBiasScale
+        self.maxStrategy = maxStrategy
+        self.minStrategy = minStrategy
+        self.strategy = initialStrategy
         self.isReccurent = isReccurent
         self.fitness = 0.0
 
+        if initialStrategy < 0 or minStrategy < 0:
+            raise ValueError("Strategy should be non-zero positive value")
+        
         self.activationFunc = activationFunc
-        self.addNodeAlpha = addNodeAlpha
-        self.addNodeBeta = addNodeBeta
+        self.addNodeBias = addNodeBias
+        self.addNodeGain = addNodeGain
 
         if self.initialBiasType == 'gaussian':
-            initialBiases = [random.gauss(self.initialBiasMean, self.initialBiasScale)
+            initialBiases = [random.normalvariate(self.initialBiasMean, self.initialBiasScale)
                              for i in range(self.outputSize + self.hiddenSize)]
         elif self.initialBiasType == 'cauchy':
             initialBiases = [self.initialBiasMean +
@@ -128,7 +135,7 @@ class Individual:
             connections[i] = 1
 
         if self.initialWeightType == 'gaussian':
-            initialWeights = [random.gauss(self.initialWeightMean, self.initialWeightScale)
+            initialWeights = [random.normalvariate(self.initialWeightMean, self.initialWeightScale)
                               for i in range(connectionNumber)]
         elif self.initialWeightType == 'cauchy':
             initialWeights = [self.initialWeightMean +
@@ -246,9 +253,9 @@ class Individual:
 
         for node, value in zip(hiddenNodeList, hiddenNodeValueSum):
             if self.activationFunc == 'sigmoid':
-                node.value = 1.0 / (1.0 + np.exp(self.addNodeBeta * (node.bias - value)))
+                node.value = 1.0 / (1.0 + np.exp(self.addNodeGain * (node.bias - value)))
             elif self.activationFunc == 'tanh':
-                node.value = np.tanh(self.addNodeBeta * (value - node.bias))
+                node.value = np.tanh(self.addNodeGain * (value - node.bias))
             else:
                 raise NameError("Activation function '{}' is not defined".format(self.activationFunc))
 
@@ -259,9 +266,9 @@ class Individual:
 
         for node, value in zip(outputNodeList, outputNodeValueSum):
             if self.activationFunc == 'sigmoid':
-                node.value = 1.0 / (1.0 + np.exp(self.addNodeBeta * (node.bias - value)))
+                node.value = 1.0 / (1.0 + np.exp(self.addNodeGain * (node.bias - value)))
             elif self.activationFunc == 'tanh':
-                node.value = np.tanh(self.addNodeBeta * (value - node.bias))
+                node.value = np.tanh(self.addNodeGain * (value - node.bias))
             else:
                 raise NameError("Activation function '{}' is not defined".format(self.activationFunc))
 
@@ -285,20 +292,23 @@ class ToolboxMBEANN:
         self.mutBiasScale = mutBiasScale
         self.addNodeWeight = addNodeWeight
 
-        if mutWeightType not in ['gaussian', 'cauchy', 'uniform']:
+        if mutWeightType not in ['gaussian', 'cauchy', 'uniform', 'sa_one']:
             print("WARNING: undefined 'mutWeightType', using 'gaussian' instead")
             self.mutWeightType = 'gaussian'
 
-        if mutBiasType not in ['gaussian', 'cauchy', 'uniform']:
+        if mutBiasType not in ['gaussian', 'cauchy', 'uniform', 'sa_one']:
             print("WARNING: undefined 'mutBiasType', using 'gaussian' instead")
             self.mutBiasType = 'gaussian'
 
     def mutateWeightValue(self, ind):
+        if self.mutWeightType == 'sa_one':
+            raise RuntimeError("Use 'mutateWeightAndBiasValue' instead.")
+        # TODO: add compatibility with 'sa_one'
         for operon in ind.operonList:
             for link in operon.linkList:
                 if random.random() < self.p_weight:
                     if self.mutWeightType == 'gaussian':
-                        link.weight += random.gauss(0.0, self.mutWeightScale)
+                        link.weight += random.normalvariate(0.0, self.mutWeightScale)
                     elif self.mutWeightType == 'cauchy':
                         link.weight += self.mutWeightScale * math.tan(math.pi * (random.random() - 0.5))
                     elif self.mutWeightType == 'uniform':
@@ -306,16 +316,40 @@ class ToolboxMBEANN:
                     link.weight = np.clip(link.weight, ind.minWeight, ind.maxWeight)
 
     def mutateBiasValue(self, ind):
+        if self.mutBiasType == 'sa_one':
+            raise RuntimeError("Use 'mutateWeightAndBiasValue' instead.")
+        # TODO: add compatibility with 'sa_one'
         for operon in ind.operonList:
             for node in operon.nodeList:
                 if node.type != 'input' and random.random() < self.p_bias:
                     if self.mutBiasType == 'gaussian':
-                        node.bias += random.gauss(0.0, self.mutBiasScale)
+                        node.bias += random.normalvariate(0.0, self.mutBiasScale)
                     elif self.mutBiasType == 'cauchy':
                         node.bias += self.mutBiasScale * math.tan(math.pi * (random.random() - 0.5))
                     elif self.mutBiasType == 'uniform':
                         node.bias = random.uniform(ind.minBias, ind.maxBias)
                     node.bias = np.clip(node.bias, ind.minBias, ind.maxBias)
+
+    def mutateWeightAndBiasValue(self, ind, c=1.0):
+        if self.mutWeightType == 'sa_one' and self.mutBiasType == 'sa_one':
+            N = random.normalvariate(0.0, 1.0)
+            # Not sure if this works with tau decreasing depending on augmenting topologies.
+            tau = c / math.sqrt(ind.maxLinkID + ind.maxNodeID + 2.0)
+            ind.strategy *= math.exp(tau * N)
+            ind.strategy = np.clip(ind.strategy, ind.minStrategy, ind.maxStrategy)
+            for operon in ind.operonList:
+                for link in operon.linkList:
+                    if random.random() < self.p_weight:
+                        link.weight += ind.strategy * random.normalvariate(0.0, 1.0)
+                        link.weight = np.clip(link.weight, ind.minWeight, ind.maxWeight)
+
+                for node in operon.nodeList:
+                    if node.type != 'input' and random.random() < self.p_bias:
+                        node.bias += ind.strategy * random.normalvariate(0.0, 1.0)
+                        node.bias = np.clip(node.bias, ind.minBias, ind.maxBias)
+        else:
+            self.mutateWeightValue(ind)
+            self.mutateBiasValue(ind)
 
     def mutateAddNode(self, ind):
         newOperonID = None
@@ -338,7 +372,7 @@ class ToolboxMBEANN:
 
                 newNode = Node(id=ind.maxNodeID + 1,
                                type='hidden',
-                               bias=ind.addNodeAlpha)
+                               bias=ind.addNodeBias)
                 newLinkA = Link(id=ind.maxLinkID + 1,
                                 fromNodeID=ind.maxNodeID + 1,
                                 toNodeID=oldLink.toNodeID,
