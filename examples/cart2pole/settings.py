@@ -74,9 +74,9 @@ class SettingsMBEANN:
     addNodeWeightValue = 1.0
 
     # Recommended settings for 'sigmoid':
-    actFunc_Alpha = 0.5 * addNodeWeightValue
-    actFunc_Beta = 4.629740 / addNodeWeightValue
+    actFuncBias = 0.5 * addNodeWeightValue
+    actFuncGain = 4.629740 / addNodeWeightValue
 
     # Recommended settings for 'tanh':
-    # actFunc_Alpha = 0.0
-    # actFunc_Beta = 1.157435 / addNodeWeightValue
+    # actFuncBias = 0.0
+    # actFuncGain = 1.157435 / addNodeWeightValue

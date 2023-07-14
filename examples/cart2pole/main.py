@@ -106,19 +106,34 @@ if __name__ == '__main__':
     if numProcesses > 1:
         pool = multiprocessing.Pool(processes=numProcesses)
 
-    pop = [Individual(SettingsMBEANN.inSize, SettingsMBEANN.outSize, SettingsMBEANN.hidSize,
-                      SettingsMBEANN.initialConnection,
-                      SettingsMBEANN.maxWeight, SettingsMBEANN.minWeight, SettingsMBEANN.initialWeightType,
-                      SettingsMBEANN.initialWeighMean, SettingsMBEANN.initialWeightScale,
-                      SettingsMBEANN.maxBias, SettingsMBEANN.minBias, SettingsMBEANN.initialBiasType,
-                      SettingsMBEANN.initialBiasMean, SettingsMBEANN.initialBiasScale,
-                      SettingsMBEANN.isReccurent, SettingsMBEANN.activationFunc,
-                      SettingsMBEANN.actFunc_Alpha, SettingsMBEANN.actFunc_Beta) for i in range(popSize)]
-    tools = ToolboxMBEANN(SettingsMBEANN.p_addNode, SettingsMBEANN.p_addLink,
-                          SettingsMBEANN.p_weight, SettingsMBEANN.p_bias,
-                          SettingsMBEANN.weightMutationType, SettingsMBEANN.weightMutationScale,
-                          SettingsMBEANN.biasMutationType, SettingsMBEANN.biasMutationScale,
-                          SettingsMBEANN.addNodeWeightValue)
+    pop = [Individual(inputSize=SettingsMBEANN.inSize, 
+                      outputSize=SettingsMBEANN.outSize, 
+                      hiddenSize=SettingsMBEANN.hidSize,
+                      initialConnection=SettingsMBEANN.initialConnection,
+                      maxWeight=SettingsMBEANN.maxWeight, 
+                      minWeight=SettingsMBEANN.minWeight, 
+                      initialWeightType=SettingsMBEANN.initialWeightType,
+                      initialWeightMean=SettingsMBEANN.initialWeighMean, 
+                      initialWeightScale=SettingsMBEANN.initialWeightScale,
+                      maxBias=SettingsMBEANN.maxBias, 
+                      minBias=SettingsMBEANN.minBias, 
+                      initialBiasType=SettingsMBEANN.initialBiasType,
+                      initialBiasMean=SettingsMBEANN.initialBiasMean, 
+                      initialBiasScale=SettingsMBEANN.initialBiasScale,
+                      isReccurent=SettingsMBEANN.isReccurent, 
+                      activationFunc=SettingsMBEANN.activationFunc,
+                      addNodeBias=SettingsMBEANN.actFuncBias, 
+                      addNodeGain=SettingsMBEANN.actFuncGain) 
+                      for i in range(popSize)]
+    tools = ToolboxMBEANN(p_addNode=SettingsMBEANN.p_addNode, 
+                          p_addLink=SettingsMBEANN.p_addLink,
+                          p_weight=SettingsMBEANN.p_weight, 
+                          p_bias=SettingsMBEANN.p_bias,
+                          mutWeightType=SettingsMBEANN.weightMutationType, 
+                          mutWeightScale=SettingsMBEANN.weightMutationScale,
+                          mutBiasType=SettingsMBEANN.biasMutationType, 
+                          mutBiasScale=SettingsMBEANN.biasMutationScale,
+                          addNodeWeight=SettingsMBEANN.addNodeWeightValue)
 
     log_stats = ['Gen', 'Mean', 'Std', 'Max', 'Min']
     with open('{}/log_stats.pkl'.format(data_dir), mode='wb') as out_pkl:

@@ -65,7 +65,7 @@ class Individual:
     def __init__(self, inputSize, outputSize, hiddenSize, initialConnection,
                  maxWeight, minWeight, initialWeightType, initialWeightMean, initialWeightScale,
                  maxBias, minBias, initialBiasType, initialBiasMean, initialBiasScale,
-                 isReccurent, activationFunc, addNodeAlpha, addNodeBeta):
+                 isReccurent, activationFunc, addNodeBias, addNodeGain):
         self.fitness = 0.0
         self.inputSize = inputSize
         self.outputSize = outputSize
@@ -85,8 +85,8 @@ class Individual:
         self.fitness = 0.0
 
         self.activationFunc = activationFunc
-        self.addNodeAlpha = addNodeAlpha
-        self.addNodeBeta = addNodeBeta
+        self.addNodeBias = addNodeBias
+        self.addNodeGain = addNodeGain
 
         if self.initialBiasType == 'gaussian':
             initialBiases = [random.gauss(self.initialBiasMean, self.initialBiasScale)
@@ -246,9 +246,9 @@ class Individual:
 
         for node, value in zip(hiddenNodeList, hiddenNodeValueSum):
             if self.activationFunc == 'sigmoid':
-                node.value = 1.0 / (1.0 + np.exp(self.addNodeBeta * (node.bias - value)))
+                node.value = 1.0 / (1.0 + np.exp(self.addNodeGain * (node.bias - value)))
             elif self.activationFunc == 'tanh':
-                node.value = np.tanh(self.addNodeBeta * (value - node.bias))
+                node.value = np.tanh(self.addNodeGain * (value - node.bias))
             else:
                 raise NameError("Activation function '{}' is not defined".format(self.activationFunc))
 
@@ -259,9 +259,9 @@ class Individual:
 
         for node, value in zip(outputNodeList, outputNodeValueSum):
             if self.activationFunc == 'sigmoid':
-                node.value = 1.0 / (1.0 + np.exp(self.addNodeBeta * (node.bias - value)))
+                node.value = 1.0 / (1.0 + np.exp(self.addNodeGain * (node.bias - value)))
             elif self.activationFunc == 'tanh':
-                node.value = np.tanh(self.addNodeBeta * (value - node.bias))
+                node.value = np.tanh(self.addNodeGain * (value - node.bias))
             else:
                 raise NameError("Activation function '{}' is not defined".format(self.activationFunc))
 
@@ -338,7 +338,7 @@ class ToolboxMBEANN:
 
                 newNode = Node(id=ind.maxNodeID + 1,
                                type='hidden',
-                               bias=ind.addNodeAlpha)
+                               bias=ind.addNodeBias)
                 newLinkA = Link(id=ind.maxLinkID + 1,
                                 fromNodeID=ind.maxNodeID + 1,
                                 toNodeID=oldLink.toNodeID,
