@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 plt.switch_backend('agg')
+plt.rcParams['figure.constrained_layout.use'] = True
+
 import networkx as nx
 from matplotlib.colors import Normalize
 
@@ -100,7 +102,7 @@ def visualizeIndividual(ind, fileName):
 
     ax = plt.gca()
     ax.set_axis_off()
-    plt.tight_layout()
+    # plt.tight_layout()
     plt.savefig(fileName)
 
     G.clear()

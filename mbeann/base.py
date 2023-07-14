@@ -89,7 +89,7 @@ class Individual:
         self.addNodeGain = addNodeGain
 
         if self.initialBiasType == 'gaussian':
-            initialBiases = [random.gauss(self.initialBiasMean, self.initialBiasScale)
+            initialBiases = [random.normalvariate(self.initialBiasMean, self.initialBiasScale)
                              for i in range(self.outputSize + self.hiddenSize)]
         elif self.initialBiasType == 'cauchy':
             initialBiases = [self.initialBiasMean +
@@ -128,7 +128,7 @@ class Individual:
             connections[i] = 1
 
         if self.initialWeightType == 'gaussian':
-            initialWeights = [random.gauss(self.initialWeightMean, self.initialWeightScale)
+            initialWeights = [random.normalvariate(self.initialWeightMean, self.initialWeightScale)
                               for i in range(connectionNumber)]
         elif self.initialWeightType == 'cauchy':
             initialWeights = [self.initialWeightMean +
@@ -298,7 +298,7 @@ class ToolboxMBEANN:
             for link in operon.linkList:
                 if random.random() < self.p_weight:
                     if self.mutWeightType == 'gaussian':
-                        link.weight += random.gauss(0.0, self.mutWeightScale)
+                        link.weight += self.mutWeightScale * random.normalvariate(0.0, 1.0)
                     elif self.mutWeightType == 'cauchy':
                         link.weight += self.mutWeightScale * math.tan(math.pi * (random.random() - 0.5))
                     elif self.mutWeightType == 'uniform':
@@ -310,7 +310,7 @@ class ToolboxMBEANN:
             for node in operon.nodeList:
                 if node.type != 'input' and random.random() < self.p_bias:
                     if self.mutBiasType == 'gaussian':
-                        node.bias += random.gauss(0.0, self.mutBiasScale)
+                        node.bias += self.mutBiasScale * random.normalvariate(0.0, 1.0)
                     elif self.mutBiasType == 'cauchy':
                         node.bias += self.mutBiasScale * math.tan(math.pi * (random.random() - 0.5))
                     elif self.mutBiasType == 'uniform':
