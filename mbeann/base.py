@@ -308,7 +308,7 @@ class ToolboxMBEANN:
             for link in operon.linkList:
                 if random.random() < self.p_weight:
                     if self.mutWeightType == 'gaussian':
-                        link.weight += random.normalvariate(0.0, self.mutWeightScale)
+                        link.weight += self.mutWeightScale * random.normalvariate(0.0, 1.0)
                     elif self.mutWeightType == 'cauchy':
                         link.weight += self.mutWeightScale * math.tan(math.pi * (random.random() - 0.5))
                     elif self.mutWeightType == 'uniform':
@@ -323,7 +323,7 @@ class ToolboxMBEANN:
             for node in operon.nodeList:
                 if node.type != 'input' and random.random() < self.p_bias:
                     if self.mutBiasType == 'gaussian':
-                        node.bias += random.normalvariate(0.0, self.mutBiasScale)
+                        node.bias += self.mutBiasScale * random.normalvariate(0.0, 1.0)
                     elif self.mutBiasType == 'cauchy':
                         node.bias += self.mutBiasScale * math.tan(math.pi * (random.random() - 0.5))
                     elif self.mutBiasType == 'uniform':
