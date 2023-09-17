@@ -31,6 +31,7 @@ def evaluateIndividual(ind):
     '''
     max_bal_steps = 1000
     fitness = cart.run_simulation_gruau(ind, max_bal_steps)
+    # fitness = cart.run_simulation(ind, max_bal_steps)
     return fitness,
 
 
