@@ -28,10 +28,10 @@ MASS_CART = 1.0  # kg
 FORCE_MAG = 10.0  # N
 # The first pole
 MASS_POLE_1 = 1.0  # kg
-LENGTH_1 = 1.0 / 2.0  # m - actually half the first pole's length
+LENGTH_1 = 1.0 / 2.0  # m - actually half the first pole's length (center of mass)
 # The second pole
 MASS_POLE_2 = 0.1  # kg
-LENGTH_2 = 0.1 / 2.0  # m - actually half the second pole's length
+LENGTH_2 = 0.1 / 2.0  # m - actually half the second pole's length (center of mass)
 # The coefficient of friction of pivot of the pole
 MUP = 0.000002
 
@@ -206,7 +206,7 @@ def apply_action(action, state, step_number):
     return state
 
 
-def run_simulation(net, max_bal_steps=100000, bool_discrete_action=False, act_interval=2):
+def run_simulation(net, max_bal_steps=100000, bool_discrete_action=False):
     """
     The function to run cart-two-pole apparatus simulation for a
     certain number of time steps as maximum.
@@ -239,17 +239,13 @@ def run_simulation(net, max_bal_steps=100000, bool_discrete_action=False, act_in
         input[1] = (state[2] + THIRTY_SIX_DEG_IN_RAD) / (THIRTY_SIX_DEG_IN_RAD * 2.0)
         input[2] = (state[4] + THIRTY_SIX_DEG_IN_RAD) / (THIRTY_SIX_DEG_IN_RAD * 2.0)
 
-        if steps % act_interval == 0:
-            # Activate the NET
-            output = net.calculateNetwork(input)
-            action = output[0]
+        # Activate the NET
+        output = net.calculateNetwork(input)
+        action = output[0]
 
-            if bool_discrete_action:
-                # Make action values discrete
-                action = 0 if output[0] < 0.5 else 1
-        else:
-            # Zero force
-            action = 0.5
+        if bool_discrete_action:
+            # Make action values discrete
+            action = 0 if output[0] < 0.5 else 1
 
         # Apply action to the simulated cart-two-pole
         state = apply_action(action=action, state=state, step_number=steps)
@@ -261,7 +257,7 @@ def run_simulation(net, max_bal_steps=100000, bool_discrete_action=False, act_in
     return max_bal_steps
 
 
-def run_simulation_gruau(net, max_bal_steps=1000, bool_discrete_action=False, act_interval=2):
+def run_simulation_gruau(net, max_bal_steps=1000, bool_discrete_action=False):
     """
     The function to run cart-two-pole apparatus simulation for a
     certain number of time steps as maximum.
@@ -296,17 +292,13 @@ def run_simulation_gruau(net, max_bal_steps=1000, bool_discrete_action=False, ac
         input[1] = (state[2] + THIRTY_SIX_DEG_IN_RAD) / (THIRTY_SIX_DEG_IN_RAD * 2.0)
         input[2] = (state[4] + THIRTY_SIX_DEG_IN_RAD) / (THIRTY_SIX_DEG_IN_RAD * 2.0)
 
-        if steps % act_interval == 0:
-            # Activate the NET
-            output = net.calculateNetwork(input)
-            action = output[0]
+        # Activate the NET
+        output = net.calculateNetwork(input)
+        action = output[0]
 
-            if bool_discrete_action:
-                # Make action values discrete
-                action = 0 if output[0] < 0.5 else 1
-        else:
-            # Zero force
-            action = 0.5
+        if bool_discrete_action:
+            # Make action values discrete
+            action = 0 if output[0] < 0.5 else 1
 
         # Apply action to the simulated cart-two-pole
         state = apply_action(action=action, state=state, step_number=steps)
@@ -333,8 +325,8 @@ class CartAnimation:
         self.net = net
         self.min_x = min_x
         self.max_x = max_x
-        self.pole_length_1 = pole_length_1
-        self.pole_length_2 = pole_length_2
+        self.pole_length_1 = pole_length_1 * 2.0  # actual pole length
+        self.pole_length_2 = pole_length_2 * 2.0  # actual pole length
         self.max_bal_steps = max_bal_steps
 
         # self.input = [None] * 6 # the inputs
@@ -343,7 +335,7 @@ class CartAnimation:
 
         self.failed_flag = False
 
-    def run_simulation_anim(self, frame, bool_discrete_action=False, act_interval=2):
+    def run_simulation_anim(self, frame, bool_discrete_action=False, act_interval=1):
         """
         The function to run cart-two-pole apparatus simulation for a
         certain number of time steps as maximum.

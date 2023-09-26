@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 import examples.cart2pole.cart_two_pole_base as cart
 
-fig = plt.figure(figsize=(8, 2))
+fig = plt.figure(figsize=(8, 2.4))
 ax = fig.add_subplot(1, 1, 1)
 
 pole_length_1 = 1.0 / 2.0
