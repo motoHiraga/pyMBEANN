@@ -10,7 +10,7 @@ For details, see the following research papers:
   DOI: [10.1007/s10015-021-00716-9](https://doi.org/10.1007/s10015-021-00716-9)
 
 ## Requirements
-- The pyMBEAN is developed and tested with Python 3.
+- The pyMBEANN is developed and tested with Python 3.
 - Requires [NumPy](https://numpy.org).
 - Requires [matplotlib](https://matplotlib.org) and [NetworkX](https://networkx.org) for visualizing MBEANN individuals.
 

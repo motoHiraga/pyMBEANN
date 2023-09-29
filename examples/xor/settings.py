@@ -21,7 +21,7 @@ class SettingsMBEANN:
     outSize = 1
     hidSize = 0
 
-    isReccurent = False
+    isRecurrent = False
 
     # initialConnection: (0.0, 1.0]
     # 1.0 for initialization using the fully-connected topology.
@@ -55,7 +55,7 @@ class SettingsMBEANN:
     p_weight = 1.0
     p_bias = 1.0
 
-    # Settings for wieght and bias mutations.
+    # Settings for weight and bias mutations.
     # MutationType: 'uniform', 'gaussian', or 'cauchy'
     # uniform  - Replace the weight or bias value with the value sampled from
     #            the uniform random distribution between minWeight to maxWeight.

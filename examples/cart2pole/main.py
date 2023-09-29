@@ -23,7 +23,7 @@ from mbeann.visualize import visualizeIndividual
 
 def evaluateIndividual(ind):
     '''
-    Fitness funtion for the double pole balancing problem.
+    Fitness function for the double pole balancing problem.
     Designed based on Gruau et al., 1996.
 
     See the inputs in "cart_two_pole_base.run_simulation"
@@ -53,12 +53,12 @@ def evaluateIndividual(ind):
 #     provided net
 #     Arguments:
 #         net: The feed-forward neural network generated from genome
-#         max_bal_steps: The maximum nubmer of time steps to
+#         max_bal_steps: The maximum number of time steps to
 #             execute simulation.
 #     Returns:
 #         The phenotype fitness score in range [0, 1]
 #     """
-#     # First we run simulation loop returning number of successfull
+#     # First we run simulation loop returning number of successful
 #     # simulation steps
 #     steps = cart.run_simulation(ind, max_bal_steps)
 #
@@ -121,7 +121,7 @@ if __name__ == '__main__':
                       initialBiasType=SettingsMBEANN.initialBiasType,
                       initialBiasMean=SettingsMBEANN.initialBiasMean, 
                       initialBiasScale=SettingsMBEANN.initialBiasScale,
-                      isReccurent=SettingsMBEANN.isReccurent, 
+                      isRecurrent=SettingsMBEANN.isRecurrent, 
                       activationFunc=SettingsMBEANN.activationFunc,
                       addNodeBias=SettingsMBEANN.actFuncBias, 
                       addNodeGain=SettingsMBEANN.actFuncGain) 

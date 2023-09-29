@@ -76,7 +76,7 @@ if __name__ == '__main__':
                       initialBiasType=SettingsMBEANN.initialBiasType,
                       initialBiasMean=SettingsMBEANN.initialBiasMean, 
                       initialBiasScale=SettingsMBEANN.initialBiasScale,
-                      isReccurent=SettingsMBEANN.isReccurent, 
+                      isRecurrent=SettingsMBEANN.isRecurrent, 
                       activationFunc=SettingsMBEANN.activationFunc,
                       addNodeBias=SettingsMBEANN.actFuncBias, 
                       addNodeGain=SettingsMBEANN.actFuncGain) 

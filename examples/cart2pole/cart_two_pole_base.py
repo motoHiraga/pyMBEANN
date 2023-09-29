@@ -212,7 +212,7 @@ def run_simulation(net, max_bal_steps=100000, bool_discrete_action=False):
     certain number of time steps as maximum.
     Arguments:
         net: The ANN of the phenotype to be evaluated.
-        max_bal_steps: The maximum nubmer of time steps to
+        max_bal_steps: The maximum number of time steps to
             execute simulation.
         bool_discrete_action: Discrete action space?
         act_interval: Activates network every act_interval time steps. 
@@ -221,7 +221,7 @@ def run_simulation(net, max_bal_steps=100000, bool_discrete_action=False):
         maintain the single-pole balancer in stable state.
     """
     # Run simulation for specified number of steps while
-    # cart-pole system stays within contstraints
+    # cart-pole system stays within constraints
     # input = [None] * 6 # the inputs
     input = [None] * 3  # the inputs
     state = reset_state([None] * 6)
@@ -263,7 +263,7 @@ def run_simulation_gruau(net, max_bal_steps=1000, bool_discrete_action=False):
     certain number of time steps as maximum.
     Arguments:
         net: The ANN of the phenotype to be evaluated.
-        max_bal_steps: The maximum nubmer of time steps to
+        max_bal_steps: The maximum number of time steps to
             execute simulation.
         bool_discrete_action: Discrete action space?
         act_interval: Activates network every act_interval time steps. 
@@ -272,7 +272,7 @@ def run_simulation_gruau(net, max_bal_steps=1000, bool_discrete_action=False):
         maintain the single-pole balancer in stable state.
     """
     # Run simulation for specified number of steps while
-    # cart-pole system stays within contstraints
+    # cart-pole system stays within constraints
     # input = [None] * 6 # the inputs
     input = [None] * 3  # the inputs
     state = reset_state([None] * 6)
@@ -341,13 +341,13 @@ class CartAnimation:
         certain number of time steps as maximum.
         Arguments:
             net: The ANN of the phenotype to be evaluated.
-            max_bal_steps: The maximum nubmer of time steps to
+            max_bal_steps: The maximum number of time steps to
                 execute simulation.
             bool_discrete_action: Discrete action space?
             act_interval: Activates network every act_interval time steps. 
         """
         # Run simulation for specified number of steps while
-        # cart-pole system stays within contstraints
+        # cart-pole system stays within constraints
 
         plt.cla()  # clear the previous figure
 
