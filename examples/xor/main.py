@@ -79,7 +79,7 @@ if __name__ == '__main__':
                       maxStrategy=SettingsMBEANN.maxStrategy,
                       minStrategy=SettingsMBEANN.minStrategy,
                       initialStrategy=SettingsMBEANN.initialStrategy,
-                      isReccurent=SettingsMBEANN.isReccurent, 
+                      isRecurrent=SettingsMBEANN.isRecurrent,
                       activationFunc=SettingsMBEANN.activationFunc,
                       addNodeBias=SettingsMBEANN.actFuncBias, 
                       addNodeGain=SettingsMBEANN.actFuncGain) 

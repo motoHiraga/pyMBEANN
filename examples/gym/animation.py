@@ -30,7 +30,7 @@ gen = '499'
 with open('{}/data_ind_gen{:0>4}.pkl'.format(path, gen), 'rb') as pkl:
     ind = pickle.load(pkl)
 
-# Make gym envirionment.
+# Make gym environment.
 env = gym.make(envName, render_mode='human')
 
 total_reward = 0

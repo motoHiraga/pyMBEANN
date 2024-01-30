@@ -44,7 +44,7 @@ class Operon:
     def addLinkToDisabledLinkList(self, fromNodeID, toNodeID):
         isExists = (fromNodeID, toNodeID) in self.disabledLinkList
         if isExists == True:
-            # This warning might apperar when using "isReccurent = False".
+            # This warning might appear when using "isRecurrent = False".
             # mutateAddNode: Trying to delete a selected link again.
             # print("WARNING: {} to {} connection already exists in the disabledLinkList of operon {}"
             #       .format(fromNodeID, toNodeID, self.id))
@@ -66,7 +66,7 @@ class Individual:
                  maxWeight, minWeight, initialWeightType, initialWeightMean, initialWeightScale,
                  maxBias, minBias, initialBiasType, initialBiasMean, initialBiasScale,
                  maxStrategy, minStrategy, initialStrategy,
-                 isReccurent, activationFunc, addNodeBias, addNodeGain):
+                 isRecurrent, activationFunc, addNodeBias, addNodeGain):
         self.fitness = 0.0
         self.inputSize = inputSize
         self.outputSize = outputSize
@@ -85,7 +85,7 @@ class Individual:
         self.maxStrategy = maxStrategy
         self.minStrategy = minStrategy
         self.strategy = initialStrategy
-        self.isReccurent = isReccurent
+        self.isRecurrent = isRecurrent
         self.fitness = 0.0
 
         if initialStrategy < 0 or minStrategy < 0:
@@ -163,8 +163,8 @@ class Individual:
             else:
                 disabledLinkList += [(input.id, output.id)]
 
-        # No output-to-output reccurent connections in the initial topology.
-        if self.isReccurent == True:
+        # No output-to-output recurrent connections in the initial topology.
+        if self.isRecurrent == True:
             for output in outputNodeList:
                 disabledLinkList += [(output.id, output.id)]
 
@@ -208,9 +208,9 @@ class Individual:
                         linkID += 1
                     else:
                         disabledLinkList += [(hidden.id, output.id)]
-                    if self.isReccurent == True:
+                    if self.isRecurrent == True:
                         disabledLinkList += [(output.id, hidden.id)]
-                if self.isReccurent == True:
+                if self.isRecurrent == True:
                     disabledLinkList += [(hidden.id, hidden.id)]
 
                 self.operonList += [Operon(id=maxOperonID,
@@ -334,7 +334,7 @@ class ToolboxMBEANN:
         if self.mutWeightType == 'sa_one' and self.mutBiasType == 'sa_one':
             N = random.normalvariate(0.0, 1.0)
             # Not sure if this works with tau decreasing depending on augmenting topologies.
-            tau = c / math.sqrt(ind.maxLinkID + ind.maxNodeID + 2.0)
+            tau = c / math.sqrt(ind.maxLinkID + ind.maxNodeID + 2.0 - ind.inputSize)
             ind.strategy *= math.exp(tau * N)
             ind.strategy = np.clip(ind.strategy, ind.minStrategy, ind.maxStrategy)
             for operon in ind.operonList:
@@ -393,7 +393,7 @@ class ToolboxMBEANN:
                                               linkList=np.array([newLinkA, newLinkB]))]
 
                     disabledLinkList = []
-                    if ind.isReccurent == True:
+                    if ind.isRecurrent == True:
                         for nodeOperon0 in operon.nodeList:
                             if nodeOperon0.type != 'input':
                                 disabledLinkList += [(newNode.id, nodeOperon0.id)]
@@ -411,7 +411,7 @@ class ToolboxMBEANN:
                     ind.operonList[newOperonID].deleteLinkFromDisabledLinkList(newLinkB.fromNodeID, newLinkB.toNodeID)
 
                 else:
-                    if ind.isReccurent == True:
+                    if ind.isRecurrent == True:
                         for nodeOperon0 in ind.operonList[0].nodeList:
                             if nodeOperon0.type != 'input':
                                 operon.addLinkToDisabledLinkList(newNode.id, nodeOperon0.id)

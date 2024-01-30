@@ -24,7 +24,7 @@ from mbeann.visualize import visualizeIndividual
 # env.action_space      - Box(X,) or Discrete(X)
 envName = 'BipedalWalker-v3'
 
-# Make gym envirionment.
+# Make gym environment.
 env = gym.make(envName)
 
 
@@ -68,11 +68,11 @@ def evaluateIndividual(ind):
 
 if __name__ == '__main__':
 
-    # Get input size from the gym envirionment.
+    # Get input size from the gym environment.
     if SettingsMBEANN.inSize is None:
         SettingsMBEANN.inSize = env.observation_space.shape[0]
 
-    # Get output size from the gym envirionment.
+    # Get output size from the gym environment.
     if SettingsMBEANN.outSize is None:
         if isDiscreteActions(env):
             SettingsMBEANN.outSize = env.action_space.n
@@ -124,7 +124,7 @@ if __name__ == '__main__':
                       maxStrategy=SettingsMBEANN.maxStrategy,
                       minStrategy=SettingsMBEANN.minStrategy,
                       initialStrategy=SettingsMBEANN.initialStrategy,
-                      isReccurent=SettingsMBEANN.isReccurent, 
+                      isRecurrent=SettingsMBEANN.isRecurrent,
                       activationFunc=SettingsMBEANN.activationFunc,
                       addNodeBias=SettingsMBEANN.actFuncBias, 
                       addNodeGain=SettingsMBEANN.actFuncGain) 
