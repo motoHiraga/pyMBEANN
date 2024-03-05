@@ -62,6 +62,12 @@ class SettingsMBEANN:
     p_weight = 1.0
     p_bias = 1.0
 
+    # Controls mutation probabilities for add-node and add-connection mutations.
+    # mutationProbCtl: 'operon' or 'network' (default: 'operon')
+    # operon  - Mutations are applied to each operon with probabilities of p_addNode and p_addLink.
+    # network - p_addNode and p_addLink are normalized with the number of operons.
+    mutationProbCtl = 'network'  # 'operon' or 'network'
+
     # Settings for weight and bias mutations.
     # MutationType: 'uniform', 'gaussian', or 'cauchy'
     # uniform  - Replace the weight or bias value with the value sampled from

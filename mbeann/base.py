@@ -90,7 +90,7 @@ class Individual:
 
         if initialStrategy < 0 or minStrategy < 0:
             raise ValueError("Strategy should be non-zero positive value")
-        
+
         self.activationFunc = activationFunc
         self.addNodeBias = addNodeBias
         self.addNodeGain = addNodeGain
@@ -281,7 +281,8 @@ class Individual:
 class ToolboxMBEANN:
     def __init__(self, p_addNode, p_addLink, p_weight, p_bias,
                  mutWeightType, mutWeightScale,
-                 mutBiasType, mutBiasScale, addNodeWeight):
+                 mutBiasType, mutBiasScale, 
+                 mutationProbCtl, addNodeWeight):
         self.p_addNode = p_addNode
         self.p_addLink = p_addLink
         self.p_weight = p_weight
@@ -290,6 +291,7 @@ class ToolboxMBEANN:
         self.mutWeightScale = mutWeightScale
         self.mutBiasType = mutBiasType
         self.mutBiasScale = mutBiasScale
+        self.mutationProbCtl = mutationProbCtl
         self.addNodeWeight = addNodeWeight
 
         if mutWeightType not in ['gaussian', 'cauchy', 'uniform', 'sa_one']:
@@ -352,6 +354,14 @@ class ToolboxMBEANN:
             self.mutateBiasValue(ind)
 
     def mutateAddNode(self, ind):
+        # Normalize the mutation probability if mutationProbCtl = 'network'.
+        if self.mutationProbCtl == 'network':
+            mutation_prob = 1.0 - ((1.0 - self.p_addNode) ** (1.0 / (ind.maxOperonID + 1.0)))
+        else:
+            mutation_prob = self.p_addNode
+            if self.mutationProbCtl != 'operon':
+                print("WARNING: undefined 'mutationProbCtl' using 'operon' instead")
+
         newOperonID = None
 
         for operon in ind.operonList:
@@ -360,7 +370,7 @@ class ToolboxMBEANN:
             if operon.id == newOperonID:
                 break
 
-            if random.random() < self.p_addNode:
+            if random.random() < mutation_prob:
                 if len(operon.linkList) != 0:
                     randomIndex = random.randint(0, len(operon.linkList) - 1)
                 else:
@@ -436,9 +446,17 @@ class ToolboxMBEANN:
                     operon.linkList = np.append(operon.linkList, [newLinkA, newLinkB])
 
     def mutateAddLink(self, ind):
+        # Normalize the mutation probability if mutationProbCtl = 'network'.
+        if self.mutationProbCtl == 'network':
+            mutation_prob = 1.0 - ((1.0 - self.p_addLink) ** (1.0 / (ind.maxOperonID + 1.0)))
+        else:
+            mutation_prob = self.p_addLink
+            if self.mutationProbCtl != 'operon':
+                print("WARNING: undefined 'mutationProbCtl' using 'operon' instead")
+
         for operon in ind.operonList:
             if len(operon.disabledLinkList) != 0:
-                if random.random() < self.p_addLink:
+                if random.random() < mutation_prob:
                     randomIndex = random.randint(0, len(operon.disabledLinkList) - 1)
                     newLinkFromNodeID = operon.disabledLinkList[randomIndex][0]
                     newLinkToNodeID = operon.disabledLinkList[randomIndex][1]

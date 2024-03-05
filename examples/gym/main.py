@@ -137,6 +137,7 @@ if __name__ == '__main__':
                           mutWeightScale=SettingsMBEANN.weightMutationScale,
                           mutBiasType=SettingsMBEANN.biasMutationType, 
                           mutBiasScale=SettingsMBEANN.biasMutationScale,
+                          mutationProbCtl=SettingsMBEANN.mutationProbCtl,
                           addNodeWeight=SettingsMBEANN.addNodeWeightValue)
 
     log_stats = ['Gen', 'Mean', 'Std', 'Max', 'Min']
