@@ -184,9 +184,9 @@ if __name__ == '__main__':
         pop = tools.selectionTournament(tournamentSize, tournamentBestN)
 
         for i, ind in enumerate(pop):
-            tools.mutateWeightAndBiasValue(ind)
-            # tools.mutateWeightValue(ind)
-            # tools.mutateBiasValue(ind)
+            # tools.mutateWeightAndBiasValue(ind)
+            tools.mutateWeightValue(ind)
+            tools.mutateBiasValue(ind)
             tools.mutateAddNode(ind)
             tools.mutateAddLink(ind)
 

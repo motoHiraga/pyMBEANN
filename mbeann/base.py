@@ -15,6 +15,11 @@ import random
 import numpy as np
 
 
+# Sigmoid function to avoid "RuntimeWarning: overflow encountered in exp"
+def stable_sigmoid(x):
+    return 1.0 / (1.0 + np.exp(-x)) if x >= 0.0 else np.exp(x) / (1.0 + np.exp(x))
+
+
 class Node:
     def __init__(self, id, type, bias=None):
         self.id = id
@@ -253,7 +258,8 @@ class Individual:
 
         for node, value in zip(hiddenNodeList, hiddenNodeValueSum):
             if self.activationFunc == 'sigmoid':
-                node.value = 1.0 / (1.0 + np.exp(self.addNodeGain * (node.bias - value)))
+                # node.value = 1.0 / (1.0 + np.exp(self.addNodeGain * (node.bias - value)))
+                node.value = stable_sigmoid(self.addNodeGain * (value - node.bias))
             elif self.activationFunc == 'tanh':
                 node.value = np.tanh(self.addNodeGain * (value - node.bias))
             else:
@@ -266,7 +272,8 @@ class Individual:
 
         for node, value in zip(outputNodeList, outputNodeValueSum):
             if self.activationFunc == 'sigmoid':
-                node.value = 1.0 / (1.0 + np.exp(self.addNodeGain * (node.bias - value)))
+                # node.value = 1.0 / (1.0 + np.exp(self.addNodeGain * (node.bias - value)))
+                node.value = stable_sigmoid(self.addNodeGain * (value - node.bias))
             elif self.activationFunc == 'tanh':
                 node.value = np.tanh(self.addNodeGain * (value - node.bias))
             else:
@@ -281,7 +288,7 @@ class Individual:
 class ToolboxMBEANN:
     def __init__(self, p_addNode, p_addLink, p_weight, p_bias,
                  mutWeightType, mutWeightScale,
-                 mutBiasType, mutBiasScale, 
+                 mutBiasType, mutBiasScale,
                  mutationProbCtl, addNodeWeight):
         self.p_addNode = p_addNode
         self.p_addLink = p_addLink
@@ -302,10 +309,30 @@ class ToolboxMBEANN:
             print("WARNING: undefined 'mutBiasType', using 'gaussian' instead")
             self.mutBiasType = 'gaussian'
 
-    def mutateWeightValue(self, ind):
-        if self.mutWeightType == 'sa_one':
-            raise RuntimeError("Use 'mutateWeightAndBiasValue' instead.")
-        # TODO: add compatibility with 'sa_one'
+        # Warn if 'sa_one' is applied to the weights and biases independently.
+        # To avoid updating the strategy parameter twice per generation.
+        # Also, the learning parameter tau depends on the dimension.
+        self.mutWeightTypeWarn = False
+        self.mutateBiasValueWarn = False
+        if self.mutWeightType == 'sa_one' and self.mutBiasType == 'sa_one':
+            if self.p_bias > 0.0:
+                self.mutWeightTypeWarn = True
+            if self.p_weight > 0.0:
+                self.mutateBiasValueWarn = True
+
+    def mutateWeightValue(self, ind, c=1.0):
+
+        if self.mutWeightType == 'sa_one' and self.p_weight > 0.0:
+            # Warn if 'sa_one' is applied to the weights and biases independently.
+            if self.mutWeightTypeWarn == True:
+                print("WARNING: recommended to use 'mutateWeightAndBiasValue' instead of 'mutateWeightValue'")
+                self.mutWeightTypeWarn = False
+            N = random.normalvariate(0.0, 1.0)
+            # Not sure if this works with tau decreasing depending on augmenting topologies.
+            tau = c / math.sqrt(ind.maxLinkID + 1.0)
+            ind.strategy *= math.exp(tau * N)
+            ind.strategy = np.clip(ind.strategy, ind.minStrategy, ind.maxStrategy)
+
         for operon in ind.operonList:
             for link in operon.linkList:
                 if random.random() < self.p_weight:
@@ -315,12 +342,22 @@ class ToolboxMBEANN:
                         link.weight += self.mutWeightScale * math.tan(math.pi * (random.random() - 0.5))
                     elif self.mutWeightType == 'uniform':
                         link.weight = random.uniform(ind.minWeight, ind.maxWeight)
+                    elif self.mutBiasType == 'sa_one':
+                        link.weight += ind.strategy * random.normalvariate(0.0, 1.0)
                     link.weight = np.clip(link.weight, ind.minWeight, ind.maxWeight)
 
-    def mutateBiasValue(self, ind):
-        if self.mutBiasType == 'sa_one':
-            raise RuntimeError("Use 'mutateWeightAndBiasValue' instead.")
-        # TODO: add compatibility with 'sa_one'
+    def mutateBiasValue(self, ind, c=1.0):
+
+        if self.mutBiasType == 'sa_one' and self.p_bias > 0.0:
+            if self.mutateBiasValueWarn == True:
+                print("WARNING: recommended to use 'mutateWeightAndBiasValue' instead of 'mutateBiasValue'")
+                self.mutateBiasValueWarn = False
+            N = random.normalvariate(0.0, 1.0)
+            # Not sure if this works with tau decreasing depending on augmenting topologies.
+            tau = c / math.sqrt(ind.maxNodeID + 1.0 - ind.inputSize)
+            ind.strategy *= math.exp(tau * N)
+            ind.strategy = np.clip(ind.strategy, ind.minStrategy, ind.maxStrategy)
+
         for operon in ind.operonList:
             for node in operon.nodeList:
                 if node.type != 'input' and random.random() < self.p_bias:
@@ -330,6 +367,8 @@ class ToolboxMBEANN:
                         node.bias += self.mutBiasScale * math.tan(math.pi * (random.random() - 0.5))
                     elif self.mutBiasType == 'uniform':
                         node.bias = random.uniform(ind.minBias, ind.maxBias)
+                    elif self.mutBiasType == 'sa_one':
+                        node.bias += ind.strategy * random.normalvariate(0.0, 1.0)
                     node.bias = np.clip(node.bias, ind.minBias, ind.maxBias)
 
     def mutateWeightAndBiasValue(self, ind, c=1.0):
@@ -357,6 +396,8 @@ class ToolboxMBEANN:
         # Normalize the mutation probability if mutationProbCtl = 'network'.
         if self.mutationProbCtl == 'network':
             mutation_prob = 1.0 - ((1.0 - self.p_addNode) ** (1.0 / (ind.maxOperonID + 1.0)))
+            # Upper and lower bounds for the mutation probability.
+            # mutation_prob = np.clip(mutation_prob, 0.1, 1.0)
         else:
             mutation_prob = self.p_addNode
             if self.mutationProbCtl != 'operon':
@@ -449,6 +490,8 @@ class ToolboxMBEANN:
         # Normalize the mutation probability if mutationProbCtl = 'network'.
         if self.mutationProbCtl == 'network':
             mutation_prob = 1.0 - ((1.0 - self.p_addLink) ** (1.0 / (ind.maxOperonID + 1.0)))
+            # Upper and lower bounds for the mutation probability.
+            # mutation_prob = np.clip(mutation_prob, 0.1, 1.0)
         else:
             mutation_prob = self.p_addLink
             if self.mutationProbCtl != 'operon':

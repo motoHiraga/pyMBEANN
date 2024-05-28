@@ -79,9 +79,9 @@ class SettingsMBEANN:
     #            Both weight and bias should be set to "sa_one."
     #            "MutationScale" is not used in this mutation. 
     # Values out of the range are clipped.
-    weightMutationType = 'sa_one'
+    weightMutationType = 'gaussian'
     weightMutationScale = 0.05
-    biasMutationType = 'sa_one'
+    biasMutationType = 'gaussian'
     biasMutationScale = 0.05
 
     # --- Activation function settings. --- #

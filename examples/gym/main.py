@@ -4,7 +4,6 @@ Example of MBEANN in Python for solving the OpenAI Gym problem.
 OpenAI Gym: https://gym.openai.com
 '''
 
-import math
 import multiprocessing
 import os
 import pickle
@@ -22,7 +21,7 @@ from mbeann.visualize import visualizeIndividual
 # Only supports environments with the following state and action spaces:
 # env.observation_space - Box(X,)
 # env.action_space      - Box(X,) or Discrete(X)
-envName = 'BipedalWalker-v3'
+envName = 'HalfCheetah-v5'
 
 # Make gym environment.
 env = gym.make(envName)

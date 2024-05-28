@@ -6,8 +6,8 @@ MBEANN settings for solving the OpenAI Gym problem.
 class SettingsEA:
 
     # --- Evolutionary algorithm settings. --- #
-    popSize = 500
-    maxGeneration = 500  # 0 to (max_generation - 1)
+    popSize = 200
+    maxGeneration = 100  # 0 to (max_generation - 1)
     isMaximizingFit = True
     eliteSize = 0
     tournamentSize = 20
@@ -39,21 +39,21 @@ class SettingsMBEANN:
     # Weights out of the range [minWeight, maxWeight] are clipped.
     initialWeightType = 'gaussian'
     initialWeighMean = 0.0
-    initialWeightScale = 0.5
-    maxWeight = 5.0
-    minWeight = -5.0
+    initialWeightScale = 0.01
+    maxWeight = 1.0
+    minWeight = -1.0
 
     # Bias settings.
     initialBiasType = 'gaussian'
     initialBiasMean = 0.0
-    initialBiasScale = 0.5
-    maxBias = 5.0
-    minBias = -5.0
+    initialBiasScale = 0.01
+    maxBias = 1.0
+    minBias = -1.0
 
     # Strategy settings for "sa_one."
-    initialStrategy = 0.5
-    maxStrategy = 5.0
-    minStrategy = 0.01
+    initialStrategy = 0.01
+    maxStrategy = 0.1
+    minStrategy = 0.001
 
     # --- Mutation settings. --- #
     # Probability of mutations.
