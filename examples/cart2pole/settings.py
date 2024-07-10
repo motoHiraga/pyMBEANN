@@ -6,8 +6,8 @@ MBEANN settings for the double pole balancing problem.
 class SettingsEA:
 
     # --- Evolutionary algorithm settings. --- #
-    popSize = 500
-    maxGeneration = 300  # 0 to (maxGeneration - 1)
+    popSize = 1000
+    maxGeneration = 500  # 0 to (maxGeneration - 1)
     isMaximizingFit = True
     eliteSize = 0
     tournamentSize = 20
@@ -30,8 +30,8 @@ class SettingsMBEANN:
 
     # initialWeightType: 'uniform', 'gaussian', or 'cauchy'
     # uniform  - Uniform random numbers between minWeight to maxWeight.
-    # gaussian - Sampled from Gaussian distribution with the mean of initialWeighMean
-    #            and the standard deviation of initialWeightScale.
+    # gaussian - Sampled from Gaussian distribution with 
+    #            random.normalvariate(mu=initialWeighMean, sigma=initialWeightScale). 
     # cauchy   - Sampled from Cauchy distribution with the location parameter of initialWeighMean
     #            and the scale parameter of initialWeightScale.
     # Weights out of the range [minWeight, maxWeight] are clipped.
@@ -48,26 +48,41 @@ class SettingsMBEANN:
     maxBias = 5.0
     minBias = -5.0
 
+    # Strategy settings for "sa_one."
+    initialStrategy = 0.5
+    maxStrategy = 5.0
+    minStrategy = 0.01
+
     # --- Mutation settings. --- #
     # Probability of mutations.
-    p_addNode = 0.007
+    p_addNode = 0.03
     p_addLink = 0.3
     p_weight = 1.0
     p_bias = 1.0
+
+    # Controls mutation probabilities for add-node and add-connection mutations.
+    # mutationProbCtl: 'operon' or 'network' (default: 'operon')
+    # operon  - Mutations are applied to each operon with probabilities of p_addNode and p_addLink.
+    # network - p_addNode and p_addLink are normalized with the number of operons.
+    mutationProbCtl = 'operon'  # 'operon' or 'network'
 
     # Settings for weight and bias mutations.
     # MutationType: 'uniform', 'gaussian', or 'cauchy'
     # uniform  - Replace the weight or bias value with the value sampled from
     #            the uniform random distribution between minWeight to maxWeight.
-    # gaussian - Add the value sampled from Gaussian distribution with the mean of 0
-    #            and the standard deviation of MutationScale.
+    # gaussian - Add the value sampled from Gaussian distribution with 
+    #            random.normalvariate(mu=o, sigma=MutationScale). 
     # cauchy   - Add the value sampled from Cauchy distribution with the location parameter of 0
     #            and the scale parameter of MutationScale.
+    # sa_one   - Self-adaptive mutation using uncorrelated mutation with one step size.
+    #            See [A.E. Eiben and J.E. Smith, 2015].
+    #            Both weight and bias should be set to "sa_one."
+    #            "MutationScale" is not used in this mutation. 
     # Values out of the range are clipped.
     weightMutationType = 'gaussian'
     weightMutationScale = 0.05
     biasMutationType = 'gaussian'
-    biasMutationScale = 0.025
+    biasMutationScale = 0.05
 
     # --- Activation function settings. --- #
     activationFunc = 'sigmoid'  # 'sigmoid' or 'tanh'

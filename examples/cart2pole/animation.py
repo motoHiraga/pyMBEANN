@@ -2,7 +2,6 @@
 Animation for the double pole balancing problem.
 '''
 
-import math
 import os
 import pickle
 

@@ -76,7 +76,10 @@ if __name__ == '__main__':
                       initialBiasType=SettingsMBEANN.initialBiasType,
                       initialBiasMean=SettingsMBEANN.initialBiasMean, 
                       initialBiasScale=SettingsMBEANN.initialBiasScale,
-                      isRecurrent=SettingsMBEANN.isRecurrent, 
+                      maxStrategy=SettingsMBEANN.maxStrategy,
+                      minStrategy=SettingsMBEANN.minStrategy,
+                      initialStrategy=SettingsMBEANN.initialStrategy,
+                      isRecurrent=SettingsMBEANN.isRecurrent,
                       activationFunc=SettingsMBEANN.activationFunc,
                       addNodeBias=SettingsMBEANN.actFuncBias, 
                       addNodeGain=SettingsMBEANN.actFuncGain) 
@@ -89,6 +92,7 @@ if __name__ == '__main__':
                           mutWeightScale=SettingsMBEANN.weightMutationScale,
                           mutBiasType=SettingsMBEANN.biasMutationType, 
                           mutBiasScale=SettingsMBEANN.biasMutationScale,
+                          mutationProbCtl=SettingsMBEANN.mutationProbCtl,
                           addNodeWeight=SettingsMBEANN.addNodeWeightValue)
 
     log_stats = ['Gen', 'Mean', 'Std', 'Max', 'Min']
@@ -138,8 +142,9 @@ if __name__ == '__main__':
         pop = tools.selectionTournament(tournamentSize, tournamentBestN)
 
         for i, ind in enumerate(pop):
-            tools.mutateWeightValue(ind)
-            tools.mutateBiasValue(ind)
+            tools.mutateWeightAndBiasValue(ind)
+            # tools.mutateWeightValue(ind)
+            # tools.mutateBiasValue(ind)
             tools.mutateAddNode(ind)
             tools.mutateAddLink(ind)
 

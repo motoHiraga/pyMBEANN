@@ -2,7 +2,6 @@
 Animation for the OpenAI Gym problem.
 '''
 
-import math
 import os
 import pickle
 
@@ -18,14 +17,14 @@ def isDiscreteActions(env):
 # Only supports environments with the following state and action spaces:
 # env.observation_space - Box(X,)
 # env.action_space      - Box(X,) or Discrete(X)
-envName = 'BipedalWalker-v3'
+envName = 'HalfCheetah-v5'
 
 # Episode length should be longer than the termination condition defined in the gym environment.
 episode_length = 100000
 
 # Load MBEANN individual data
 path = os.path.join(os.path.dirname(__file__), 'results_gym_0')
-gen = '499'
+gen = '199'
 
 with open('{}/data_ind_gen{:0>4}.pkl'.format(path, gen), 'rb') as pkl:
     ind = pickle.load(pkl)
