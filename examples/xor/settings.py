@@ -7,7 +7,7 @@ class SettingsEA:
 
     # --- Evolutionary algorithm settings. --- #
     popSize = 100
-    maxGeneration = 300  # 0 to (max_generation - 1)
+    maxGeneration = 100  # 0 to (max_generation - 1)
     isMaximizingFit = False
     eliteSize = 0
     tournamentSize = 20
@@ -64,6 +64,7 @@ class SettingsMBEANN:
     # mutationProbCtl: 'operon' or 'network' (default: 'operon')
     # operon  - Mutations are applied to each operon with probabilities of p_addNode and p_addLink.
     # network - p_addNode and p_addLink are normalized with the number of operons.
+    #           Lower bounds can be set by the argument in mutateAddNode and mutateAddLink.
     mutationProbCtl = 'operon'  # 'operon' or 'network'
 
     # Settings for weight and bias mutations.
@@ -79,9 +80,9 @@ class SettingsMBEANN:
     #            Both weight and bias should be set to "sa_one."
     #            "MutationScale" is not used in this mutation. 
     # Values out of the range are clipped.
-    weightMutationType = 'sa_one'
+    weightMutationType = 'gaussian'
     weightMutationScale = 0.5
-    biasMutationType = 'sa_one'
+    biasMutationType = 'gaussian'
     biasMutationScale = 0.05
 
     # --- Activation function settings. --- #

@@ -64,6 +64,7 @@ class SettingsMBEANN:
     # mutationProbCtl: 'operon' or 'network' (default: 'operon')
     # operon  - Mutations are applied to each operon with probabilities of p_addNode and p_addLink.
     # network - p_addNode and p_addLink are normalized with the number of operons.
+    #           Lower bounds can be set by the argument in mutateAddNode and mutateAddLink.
     mutationProbCtl = 'operon'  # 'operon' or 'network'
 
     # Settings for weight and bias mutations.

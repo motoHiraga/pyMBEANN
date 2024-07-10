@@ -109,7 +109,7 @@ class Individual:
                              for i in range(self.outputSize + self.hiddenSize)]
         else:
             if self.initialBiasType != 'uniform':
-                print("WARNING: undefined 'initialBiasType' using 'uniform' instead")
+                print("WARNING: undefined 'initialBiasType'. Using 'uniform' instead")
             initialBiases = [random.uniform(self.minBias, self.maxBias)
                              for i in range(self.outputSize + self.hiddenSize)]
         initialBiases = np.clip(initialBiases, self.minBias, self.maxBias)
@@ -148,7 +148,7 @@ class Individual:
                               for i in range(connectionNumber)]
         else:
             if self.initialWeightType != 'uniform':
-                print("WARNING: undefined 'initialWeightType', using 'uniform' instead")
+                print("WARNING: undefined 'initialWeightType'. Using 'uniform' instead")
             initialWeights = [random.uniform(self.minWeight, self.maxWeight)
                               for i in range(connectionNumber)]
         initialWeights = np.clip(initialWeights, self.minWeight, self.maxWeight)
@@ -392,16 +392,20 @@ class ToolboxMBEANN:
             self.mutateWeightValue(ind)
             self.mutateBiasValue(ind)
 
-    def mutateAddNode(self, ind):
+    def mutateAddNode(self, ind, prob_lower_bound=None):
         # Normalize the mutation probability if mutationProbCtl = 'network'.
         if self.mutationProbCtl == 'network':
             mutation_prob = 1.0 - ((1.0 - self.p_addNode) ** (1.0 / (ind.maxOperonID + 1.0)))
-            # Upper and lower bounds for the mutation probability.
-            # mutation_prob = np.clip(mutation_prob, 0.1, 1.0)
+            if prob_lower_bound != None:
+                if prob_lower_bound > 1.0:
+                    raise ValueError("'prob_lower_bound' should be smaller than 1.0")
+                mutation_prob = np.clip(mutation_prob, prob_lower_bound, 1.0)
         else:
             mutation_prob = self.p_addNode
             if self.mutationProbCtl != 'operon':
-                print("WARNING: undefined 'mutationProbCtl' using 'operon' instead")
+                print("WARNING: undefined 'mutationProbCtl'. Using 'operon' instead")
+            if prob_lower_bound != None:
+                print("WARNING: cannot use 'prob_lower_bound' in the 'operon' setting")
 
         newOperonID = None
 
@@ -486,16 +490,20 @@ class ToolboxMBEANN:
                     operon.nodeList = np.append(operon.nodeList, [newNode])
                     operon.linkList = np.append(operon.linkList, [newLinkA, newLinkB])
 
-    def mutateAddLink(self, ind):
+    def mutateAddLink(self, ind, prob_lower_bound=None):
         # Normalize the mutation probability if mutationProbCtl = 'network'.
         if self.mutationProbCtl == 'network':
             mutation_prob = 1.0 - ((1.0 - self.p_addLink) ** (1.0 / (ind.maxOperonID + 1.0)))
-            # Upper and lower bounds for the mutation probability.
-            # mutation_prob = np.clip(mutation_prob, 0.1, 1.0)
+            if prob_lower_bound != None:
+                if prob_lower_bound > 1.0:
+                    raise ValueError("'prob_lower_bound' should be smaller than 1.0")
+                mutation_prob = np.clip(mutation_prob, prob_lower_bound, 1.0)
         else:
             mutation_prob = self.p_addLink
             if self.mutationProbCtl != 'operon':
-                print("WARNING: undefined 'mutationProbCtl' using 'operon' instead")
+                print("WARNING: undefined 'mutationProbCtl'. Using 'operon' instead")
+            if prob_lower_bound != None:
+                print("WARNING: cannot use 'prob_lower_bound' in the 'operon' setting")
 
         for operon in ind.operonList:
             if len(operon.disabledLinkList) != 0:
@@ -530,7 +538,7 @@ class ToolboxMBEANN:
     def selectionTournament(self, tournamentSize, bestN=1):
         # Select "bestN" individuals from each tournament.
         if self.popSize < tournamentSize:
-            raise ValueError("Tournament size larger than population size")
+            raise ValueError("Population size should be smaller than tournament")
         if tournamentSize < bestN:
             raise ValueError("'bestN' should be smaller than tournament size")
         newPop = []

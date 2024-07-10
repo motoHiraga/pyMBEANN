@@ -188,8 +188,8 @@ if __name__ == '__main__':
             tools.mutateWeightAndBiasValue(ind)
             # tools.mutateWeightValue(ind)
             # tools.mutateBiasValue(ind)
-            tools.mutateAddNode(ind)
-            tools.mutateAddLink(ind)
+            tools.mutateAddNode(ind, prob_lower_bound=0.01)
+            tools.mutateAddLink(ind, prob_lower_bound=0.1)
 
         if eliteSize > 0:
             pop = elite + pop
