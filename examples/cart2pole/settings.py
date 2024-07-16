@@ -65,6 +65,7 @@ class SettingsMBEANN:
     # operon  - Mutations are applied to each operon with probabilities of p_addNode and p_addLink.
     # network - p_addNode and p_addLink are normalized with the number of operons.
     #           Lower bounds can be set by the argument in mutateAddNode and mutateAddLink.
+    #           See [M. Hiraga, et al., 2024].
     mutationProbCtl = 'operon'  # 'operon' or 'network'
 
     # Settings for weight and bias mutations.
@@ -76,7 +77,7 @@ class SettingsMBEANN:
     # cauchy   - Add the value sampled from Cauchy distribution with the location parameter of 0
     #            and the scale parameter of MutationScale.
     # sa_one   - Self-adaptive mutation using uncorrelated mutation with one step size.
-    #            See [A.E. Eiben and J.E. Smith, 2015].
+    #            See [A.E. Eiben and J.E. Smith, 2015; M. Hiraga, et al., 2024].
     #            Both weight and bias should be set to "sa_one."
     #            "MutationScale" is not used in this mutation. 
     # Values out of the range are clipped.

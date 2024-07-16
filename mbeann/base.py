@@ -72,7 +72,6 @@ class Individual:
                  maxBias, minBias, initialBiasType, initialBiasMean, initialBiasScale,
                  maxStrategy, minStrategy, initialStrategy,
                  isRecurrent, activationFunc, addNodeBias, addNodeGain):
-        self.fitness = 0.0
         self.inputSize = inputSize
         self.outputSize = outputSize
         self.hiddenSize = hiddenSize

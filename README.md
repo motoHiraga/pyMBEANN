@@ -5,7 +5,10 @@ An implementation of Mutation-Based Evolving Artificial Neural Network (MBEANN) 
 MBEANN is an alternative algorithm for *Topology and Weight Evolving Artificial Neural Networks (TWEANNs)*, which evolves both the values of the synaptic weights and the topological structure of neural networks.
 For details, see the following research papers:
 
-- K. Ohkura, et al., "MBEANN: Mutation-Based Evolving Artificial Neural Networks," ECAL 2007, pp. 936-945, 2007.
+- M. Hiraga, et al., "Improving the performance of mutation-based evolving artificial neural networks with self-adaptive mutations," PLOS ONE, Vol. 19, No.7, e0307084, 2024.<br/>
+  DOI: [10.1371/journal.pone.0307084](https://doi.org/10.1371/journal.pone.0307084)
+- K. Ohkura, et al., "MBEANN: Mutation-Based Evolving Artificial Neural Networks," ECAL 2007, pp. 936-945, 2007.<br/>
+  DOI: [10.1007/978-3-540-74913-4_94](https://doi.org/10.1007/978-3-540-74913-4_94)
 - M. Hiraga and K. Ohkura, "Topology and Weight Evolving Artificial Neural Networks in Cooperative Transport by a Robotic Swarm," Artificial Life and Robotics, Vol. 27, No.2, pp. 324-332, 2022. <br/>
   DOI: [10.1007/s10015-021-00716-9](https://doi.org/10.1007/s10015-021-00716-9)
 
