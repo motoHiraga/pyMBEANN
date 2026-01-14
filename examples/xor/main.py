@@ -2,7 +2,6 @@
 Example of MBEANN in Python solving XOR.
 '''
 
-import multiprocessing
 import os
 import pickle
 import random
@@ -37,9 +36,6 @@ def evaluateIndividual(ind):
 
 if __name__ == '__main__':
 
-    # Number of worker processes to run evolution.
-    numProcesses = multiprocessing.cpu_count()
-
     # Evolutionary algorithm settings.
     popSize = SettingsEA.popSize
     maxGeneration = SettingsEA.maxGeneration
@@ -47,6 +43,21 @@ if __name__ == '__main__':
     eliteSize = SettingsEA.eliteSize
     tournamentSize = SettingsEA.tournamentSize
     tournamentBestN = SettingsEA.tournamentBestN
+
+    # Parallel evaluator settings
+    multiProcessLib = 'multiprocessing'  # 'mpi4py' or 'multiprocessing'
+
+    if multiProcessLib == 'mpi4py':
+        from mpi4py import MPI
+        from mpi4py.futures import MPIPoolExecutor
+        pool = MPIPoolExecutor()
+
+    elif multiProcessLib == 'multiprocessing':
+        import multiprocessing
+        processCount = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(processes=processCount)
+    else:
+        processCount = 1
 
     randomSeed = 0  # int(time.time())
     random.seed(randomSeed)
@@ -58,9 +69,6 @@ if __name__ == '__main__':
     with open('{}/random_state.pkl'.format(data_dir), mode='wb') as out_pkl:
         # Saving the random state just in case.
         pickle.dump(st, out_pkl)
-
-    if numProcesses > 1:
-        pool = multiprocessing.Pool(processes=numProcesses)
 
     pop = [Individual(inputSize=SettingsMBEANN.inSize, 
                       outputSize=SettingsMBEANN.outSize, 
@@ -103,12 +111,15 @@ if __name__ == '__main__':
         print("------")
         print("Gen {}".format(gen))
 
-        if numProcesses > 1:
-            fitnessValues = pool.map(evaluateIndividual, pop)
+        if multiProcessLib == 'mpi4py':
+            fitnessValues = list(pool.map(evaluateIndividual, pop))
         else:
-            fitnessValues = []
-            for ind in pop:
-                fitnessValues += [evaluateIndividual(ind)]
+            if processCount > 1:
+                fitnessValues = pool.map(evaluateIndividual, pop)
+            else:
+                fitnessValues = []
+                for ind in pop:
+                    fitnessValues += [evaluateIndividual(ind)]
 
         for ind, fit in zip(pop, fitnessValues):
             ind.fitness = fit[0]
@@ -122,7 +133,7 @@ if __name__ == '__main__':
         print("Mean: " + str(np.mean(fitnessValues)) +
               "\tStd: " + str(np.std(fitnessValues)) +
               "\tMax: " + str(np.max(fitnessValues)) +
-              "\tMin: " + str(np.min(fitnessValues)))
+              "\tMin: " + str(np.min(fitnessValues)), flush=True)
 
         # Save the best individual.
         with open('{}/data_ind_gen{:0>4}.pkl'.format(data_dir, gen),
@@ -150,3 +161,8 @@ if __name__ == '__main__':
 
         if eliteSize > 0:
             pop = elite + pop
+
+    # To avoid the job hangs in some MPI libraries.
+    if multiProcessLib == 'mpi4py':
+        pool.shutdown()
+        # MPI.COMM_WORLD.Abort(1)  # Use only if needed on systems prone to hanging
