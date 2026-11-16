@@ -24,7 +24,7 @@ episode_length = 100000
 
 # Load MBEANN individual data
 path = os.path.join(os.path.dirname(__file__), 'results_gym_0')
-gen = '199'
+gen = '99'
 
 with open('{}/data_ind_gen{:0>4}.pkl'.format(path, gen), 'rb') as pkl:
     ind = pickle.load(pkl)

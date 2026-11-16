@@ -21,7 +21,7 @@ max_bal_steps = 1000
 
 path = os.path.join(os.path.dirname(__file__), 'results_cart_0')
 # path = 'results_cart_0'
-gen = '299'
+gen = '199'
 
 with open('{}/data_ind_gen{:0>4}.pkl'.format(path, gen), 'rb') as pkl:
     ind = pickle.load(pkl)

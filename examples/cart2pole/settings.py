@@ -7,7 +7,7 @@ class SettingsEA:
 
     # --- Evolutionary algorithm settings. --- #
     popSize = 1000
-    maxGeneration = 500  # 0 to (maxGeneration - 1)
+    maxGeneration = 200  # 0 to (maxGeneration - 1)
     isMaximizingFit = True
     eliteSize = 0
     tournamentSize = 20

@@ -133,3 +133,5 @@ examples/cart2pole/results*/
 examples/openai_gym/results*/
 examples/gym/results*/
 examples/xor/results*/
+
+MUJOCO_LOG.TXT
